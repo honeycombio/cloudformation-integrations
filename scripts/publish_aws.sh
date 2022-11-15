@@ -11,5 +11,5 @@ REGIONS="us-east-1 us-east-2 us-west-1 us-west-2 ap-south-1 ap-northeast-2 ap-so
 echo "+++ Uploading templates"
 for REGION in ${REGIONS}; do
 	DEPLOY_ROOT=s3://honeycomb-integrations-${REGION}/cloudformation-templates
-	aws s3 sync "${DRYRUN}" templates/ "${DEPLOY_ROOT}"
+	aws s3 sync ${DRYRUN} templates/ "${DEPLOY_ROOT}"
 done
