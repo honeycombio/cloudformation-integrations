@@ -1,0 +1,187 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Creates a Kinesis Firehose Delivery Stream to Honeycomb.
+
+  The Delivery Stream will use S3 to persist events (either only errors or all data),
+  and optionally supports being configured with a Lambda to do event transforms.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required Parameters
+        Parameters:
+          - Name
+          - HoneycombAPIKey
+          - HoneycombDataset
+          - S3FailureBucketArn
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - HoneycombAPIHost
+          - HttpBufferingInterval
+          - HttpBufferingSize
+          - S3BackupMode
+          - S3BufferingInterval
+          - S3BufferingSize
+          - TransformLambdaArn
+
+Parameters:
+  Name:
+    Type: String
+    Description: A name fo this Kinesis Firehose Delivery Stream
+    MinLength: 1
+    MaxLength: 32
+  HoneycombAPIKey:
+    Type: String
+    NoEcho: true
+    Description: Your Honeycomb Team's API key.
+  HoneycombDataset:
+    Type: String
+    Description: The target Honeycomb dataset.
+  HoneycombAPIHost:
+    Type: String
+    Default: https://api.honeycomb.io
+    Description: Optional. Override the default Honeycomb API host.
+  HttpBufferingInterval:
+    Type: Number
+    Default: 60
+    Description: The Kinesis Firehose http buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  HttpBufferingSize:
+    Type: Number
+    Default: 15
+    Description: The Kinesis Firehose http buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+  S3BackupMode:
+    Type: String
+    Default: FailedDataOnly
+    Description: Should we only backup to S3 data that failed delivery, or all data?
+    AllowedValues:
+      - AllData
+      - FailedDataOnly
+  S3FailureBucketArn:
+    Type: String
+    Description: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
+    ConstraintDescription: The ARN of a S3 Bucket.
+  S3BufferingInterval:
+    Type: Number
+    Default: 400
+    Description: The Kinesis Firehose S3 buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  S3BufferingSize:
+    Type: Number
+    Default: 10
+    Description: The Kinesis Firehose S3 buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+  TransformLambdaArn:
+    Type: String
+    Description: The ARN of the Lambda to use on the Kinesis Firehose to preprocess events.
+    ConstraintDescription: The ARN of a Lambda.
+
+Conditions:
+  EnableLambdaTransform: !Not [!Equals [!Ref TransformLambdaArn, ""]]
+
+Resources:
+  HoneycombDeliveryStream:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamName: !Ref Name
+      DeliveryStreamType: DirectPut
+      HttpEndpointDestinationConfiguration:
+        BufferingHints:
+          IntervalInSeconds: !Ref HttpBufferingInterval
+          SizeInMBs: !Ref HttpBufferingSize
+        EndpointConfiguration:
+          Name: Honeycomb
+          Url: !Sub
+            - "${APIHost}/1/kinesis_events/${Dataset}"
+            - APIHost: !Ref HoneycombAPIHost
+              Dataset: !Ref HoneycombDataset
+          AccessKey: !Ref HoneycombAPIKey
+        ProcessingConfiguration:
+          Enabled: !If [EnableLambdaTransform, true, false]
+          Processors:
+            - !If
+              - EnableLambdaTransform
+              - Type: Lambda
+                Parameters:
+                  - ParameterName: LambdaArn
+                    ParameterValue: !Sub
+                      - "${LambdaArn}:$LATEST"
+                      - LambdaArn: !Ref TransformLambdaArn
+              - !Ref "AWS::NoValue"
+        RequestConfiguration:
+          ContentEncoding: "GZIP"
+        RoleARN: !GetAtt FirehoseS3Role.Arn
+        S3BackupMode: !Ref S3BackupMode
+        S3Configuration:
+          BucketARN: !Ref S3FailureBucketArn
+          RoleARN: !GetAtt FirehoseS3Role.Arn
+          BufferingHints:
+            IntervalInSeconds: !Ref S3BufferingInterval
+            SizeInMBs: !Ref S3BufferingSize
+          CompressionFormat: GZIP
+  FirehoseS3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "firehose.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+  FirehoseS3Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "honeycomb-firehose-s3-policy-${AWS::StackName}"
+      Roles:
+        - Ref: FirehoseS3Role
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:AbortMultipartUpload"
+              - "s3:GetBucketLocation"
+              - "s3:GetObject"
+              - "s3:ListBucket"
+              - "s3:ListBucketMultipartUploads"
+              - "s3:PutObject"
+            Resource:
+              - Ref: S3FailureBucketArn
+              - !Sub
+                - "${BucketArn}/*"
+                - BucketArn: !Ref S3FailureBucketArn
+  LambdaTransformS3Policy:
+    Type: AWS::IAM::Policy
+    Condition: EnableLambdaTransform
+    Properties:
+      PolicyName: !Sub "honeycomb-firehose-transform-policy-${AWS::StackName}"
+      Roles:
+        - Ref: FirehoseS3Role
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "lambda:InvokeFunction"
+              - "lambda:GetFunctionConfiguration"
+            Resource: !Sub
+              - "${LambdaArn}:*"
+              - LambdaArn: !Ref TransformLambdaArn
+
+Outputs:
+  KinesisDeliveryStreamARN:
+    Description: The ARN of the Firehose Delivery Stream
+    Value: !GetAtt HoneycombDeliveryStream.Arn
+  KinesisDeliveryStreamIAMRoleARN:
+    Description: The ARN of the IAM Role created for the Firehose Delivery Stream
+    Value: !GetAtt FirehoseS3Role.Arn
