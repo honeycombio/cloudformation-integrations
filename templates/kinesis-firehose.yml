@@ -29,7 +29,7 @@ Metadata:
 Parameters:
   Name:
     Type: String
-    Description: A name fo this Kinesis Firehose Delivery Stream
+    Description: A name for this Kinesis Firehose Delivery Stream
     MinLength: 1
     MaxLength: 32
   HoneycombAPIKey:
@@ -38,7 +38,7 @@ Parameters:
     Description: Your Honeycomb Team's API key.
   HoneycombDataset:
     Type: String
-    Description: The target Honeycomb dataset.
+    Description: The target Honeycomb dataset for the Stream to publish to.
   HoneycombAPIHost:
     Type: String
     Default: https://api.honeycomb.io
