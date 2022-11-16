@@ -1,15 +1,15 @@
 name: Publish Cloudformation Templates - Pull Requests
 
 on:
-  workflow_dispatch:
   workflow_run:
-    workflows: [ "Validate and Lint Cloudformation Templates" ]
+    workflows: ["Validate and Lint Cloudformation Templates"]
+    pull_request:
+      paths-ignore:
+        - README.md
+        - CHANGELOG.md
     types:
       - completed
-  pull_request:
-    paths-ignore:
-      - README.md
-      - CHANGELOG.md
+  workflow_dispatch:
 
 env:
   AWS_DEFAULT_REGION: us-east-1
