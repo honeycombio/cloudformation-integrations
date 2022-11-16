@@ -26,8 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Setup Cloud Formation Linter with Latest Version
+        uses: scottbrenner/cfn-lint-action@v2
+
       - name: Lint Templates
         id: lint
-        uses: giammbo/cfn-lint@latest
-        with:
-          command: make lint-templates
+        run: make lint-templates
