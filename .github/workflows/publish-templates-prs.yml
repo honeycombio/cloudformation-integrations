@@ -1,15 +1,17 @@
-name: Publish Cloudformation Templates
+name: Publish Cloudformation Templates - Pull Requests
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     paths-ignore:
       - README.md
       - CHANGELOG.md
+
 env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_ACCESS_KEY_ID: ${{ secrets.PUBLISH_AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLISH_AWS_SECRET_ACCESS_KEY }}
+  PR_NUMBER: ${{ github.event.number }}
 
 jobs:
   publish-templates:
@@ -19,4 +21,4 @@ jobs:
 
       - name: Publish Templates
         id: validate
-        run: make publish-templates
+        run: make publish-templates folder=prs version=$PR_NUMBER

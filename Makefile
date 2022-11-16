@@ -7,4 +7,4 @@ lint-templates:
 	./scripts/lint-templates.sh
 
 publish-templates:
-	./scripts/publish-templates.sh
+	./scripts/publish-templates.sh $(folder) $(version)
