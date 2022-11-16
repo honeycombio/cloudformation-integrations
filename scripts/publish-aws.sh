@@ -6,7 +6,7 @@ set -e
 [[ -n "${DRYRUN}" ]] && DRYRUN="--dryrun"
 
 # publish the templates to the builds bucket
-DEPLOY_ROOT=s3://honeycomb-builds/honeycombio/cloudformation-templates
+DEPLOY_ROOT=s3://honeycomb-builds/cloudformation-templates
 
 echo "+++ Uploading templates"
 for TEMPLATE in templates/*; do
