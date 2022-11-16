@@ -1,0 +1,22 @@
+name: Validate and Lint Cloudformation Templates
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - README.md
+      - CHANGELOG.md
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  validate-and-lint-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Validate Templates
+        id: validate
+        run: make validate-templates
