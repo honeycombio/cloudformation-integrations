@@ -1,0 +1,171 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Delivers a the contents of a Cloudwatch LogGroup to Honeycomb via a Kinesis Firehose Delivery Stream.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required Parameters
+        Parameters:
+          - HoneycombAPIKey
+          - HoneycombDataset
+          - LogGroupName
+          - S3FailureBucketArn
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - HoneycombAPIHost
+          - HttpBufferingInterval
+          - HttpBufferingSize
+          - LogFilterPattern
+          - S3BackupMode
+          - S3BufferingInterval
+          - S3BufferingSize
+          - KinesisFirehoseArn
+          - TransformLambdaArn
+
+Parameters:
+  HoneycombAPIKey:
+    Type: String
+    NoEcho: true
+    Description: Your Honeycomb Team's API key.
+  HoneycombDataset:
+    Type: String
+    Description: The target Honeycomb dataset for the Stream to publish to.
+  HoneycombAPIHost:
+    Type: String
+    Default: https://api.honeycomb.io
+    Description: Optional. Override the default Honeycomb API host.
+  HttpBufferingInterval:
+    Type: Number
+    Default: 60
+    Description: The Kinesis Firehose http buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  HttpBufferingSize:
+    Type: Number
+    Default: 15
+    Description: The Kinesis Firehose http buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+  KinesisFirehoseArn:
+    Type: String
+    Description: >-
+      By default, a Kinesis Firehose Delivery Stream will be created.
+      You can override this behaviour by providing an Arn of an existing Firehose Delivery Stream
+      (perhaps already created with this template) to have multiple Log Subscriptions use the same
+      Firehose Delivery Stream.
+    ConstraintDescription: The Arn of an existing Kinesis Firehose Delivery Stream.
+  LogGroupName:
+    Type: String
+    Description: The CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
+    MinLength: 1
+    MaxLength: 512
+  LogFilterPattern:
+    Type: String
+    Description: >-
+      A valid CloudWatch Logs filter pattern for subscribing to a filtered stream of log events.
+      Defaults to empty string to match everything.
+      For more information, see the Amazon CloudWatch Logs User Guide.
+    Default: ""
+  S3BackupMode:
+    Type: String
+    Default: FailedDataOnly
+    Description: Should we only backup to S3 data that failed delivery, or all data?
+    AllowedValues:
+      - AllData
+      - FailedDataOnly
+  S3FailureBucketArn:
+    Type: String
+    Description: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
+    ConstraintDescription: The ARN of a S3 Bucket.
+  S3BufferingInterval:
+    Type: Number
+    Default: 400
+    Description: The Kinesis Firehose S3 buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  S3BufferingSize:
+    Type: Number
+    Default: 10
+    Description: The Kinesis Firehose S3 buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+  TransformLambdaArn:
+    Type: String
+    Description: The ARN of the Lambda to use on the Kinesis Firehose to preprocess events.
+    ConstraintDescription: The ARN of a Lambda.
+
+Conditions:
+  CreateKinesisFirehose: !Equals [!Ref KinesisFirehoseArn, ""]
+
+Resources:
+  KinesisToHoneycombStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateKinesisFirehose
+    Properties:
+      TemplateURL: https://honeycomb-integrations-us-east-1.s3.amazonaws.com/cloudformation-templates/kinesis-firehose.yml
+      Parameters:
+        Name: !Sub "${AWS::StackName}"
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombDataset: !Ref HoneycombDataset
+        S3FailureBucketArn: !Ref S3FailureBucketArn
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HttpBufferingInterval: !Ref HttpBufferingInterval
+        HttpBufferingSize: !Ref HttpBufferingSize
+        S3BackupMode: !Ref S3BackupMode
+        S3BufferingInterval: !Ref S3BufferingInterval
+        S3BufferingSize: !Ref S3BufferingSize
+        TransformLambdaArn: !Ref TransformLambdaArn
+  LogStreamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub "logs.${AWS::Region}.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+            Condition:
+              StringLike:
+                aws:SourceArn:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+      Policies:
+        - PolicyName: !Sub "honeycomb-logstream-policy-${AWS::StackName}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "firehose:PutRecord"
+                  - "firehose:PutRecordBatch"
+                Resource:
+                  - !If
+                    - CreateKinesisFirehose
+                    - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+                    - Ref: KinesisFirehoseArn
+  LogSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt LogStreamRole.Arn
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: !Ref LogFilterPattern
+      DestinationArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
+
+Outputs:
+  KinesisDeliveryStreamArn:
+    Description: The ARN of the Firehose Delivery Stream
+    Value: !If
+      - CreateKinesisFirehose
+      - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+      - Ref: KinesisFirehoseArn
+  LogStreamRoleArn:
+    Description: The ARN of IAM Role created for the Log Stream
+    Value: !GetAtt LogStreamRole.Arn
