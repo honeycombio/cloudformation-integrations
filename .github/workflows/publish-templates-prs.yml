@@ -2,6 +2,10 @@ name: Publish Cloudformation Templates - Pull Requests
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: [ "Validate and Lint Cloudformation Templates" ]
+    types:
+      - completed
   pull_request:
     paths-ignore:
       - README.md
