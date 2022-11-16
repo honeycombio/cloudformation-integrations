@@ -9,6 +9,4 @@ set -e
 DEPLOY_ROOT=s3://honeycomb-builds/cloudformation-templates
 
 echo "+++ Uploading templates"
-for TEMPLATE in templates/*; do
-	aws s3 sync ${DRYRUN} templates/ "${DEPLOY_ROOT}"
-done
+aws s3 sync ${DRYRUN} templates/ "${DEPLOY_ROOT}"
