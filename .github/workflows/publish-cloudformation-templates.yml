@@ -6,14 +6,10 @@ on:
     paths-ignore:
       - README.md
       - CHANGELOG.md
-
 env:
-  AWS_REGION: "us-east-1"
-
-# permission can be added at job level or workflow level
-permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.PUBLISH_AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLISH_AWS_SECRET_ACCESS_KEY }}
 
 jobs:
   publish-templates:
@@ -21,13 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::702835727665:role/product
-          role-session-name: s3publish
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Publish templates
-        run: |
-          make publish-templates
+      - name: Publish Templates
+        id: validate
+        run: make publish-templates
