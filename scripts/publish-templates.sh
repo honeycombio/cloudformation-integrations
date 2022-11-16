@@ -9,7 +9,7 @@ FOLDER="testing/$LATEST_COMMIT_SHA"
 #PRs or Releases
 if [ -n "$1" ] && [ $1 == "prs" ] && [ -n "$2" ]; then
   FOLDER="prs/$2"
-elif [ -n "$1" ] && [ $1 == "release" ]; then
+elif [ -n "$1" ] && [ $1 == "latest" ]; then
   FOLDER="latest"
 fi
 

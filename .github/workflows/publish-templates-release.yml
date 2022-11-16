@@ -1,0 +1,21 @@
+name: Publish Cloudformation Templates - Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [released]
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.PUBLISH_AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLISH_AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  publish-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Publish Templates
+        id: validate
+        run: make publish-templates folder=latest
