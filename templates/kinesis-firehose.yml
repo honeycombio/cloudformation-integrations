@@ -80,6 +80,7 @@ Parameters:
     MaxValue: 128
   TransformLambdaArn:
     Type: String
+    Default: ""
     Description: The ARN of the Lambda to use on the Kinesis Firehose to preprocess events.
     ConstraintDescription: The ARN of a Lambda.
 
@@ -117,6 +118,8 @@ Resources:
               - !Ref "AWS::NoValue"
         RequestConfiguration:
           ContentEncoding: "GZIP"
+        RetryOptions:
+          DurationInSeconds: 60
         RoleARN: !GetAtt FirehoseS3Role.Arn
         S3BackupMode: !Ref S3BackupMode
         S3Configuration:
@@ -179,9 +182,9 @@ Resources:
               - LambdaArn: !Ref TransformLambdaArn
 
 Outputs:
-  KinesisDeliveryStreamARN:
+  KinesisDeliveryStreamArn:
     Description: The ARN of the Firehose Delivery Stream
     Value: !GetAtt HoneycombDeliveryStream.Arn
-  KinesisDeliveryStreamIAMRoleARN:
+  KinesisDeliveryStreamIAMRoleArn:
     Description: The ARN of the IAM Role created for the Firehose Delivery Stream
     Value: !GetAtt FirehoseS3Role.Arn

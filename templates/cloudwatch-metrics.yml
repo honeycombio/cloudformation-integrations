@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Creates a CloudWatch Metrics Stream to Honeycomb.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required Parameters
+        Parameters:
+          - HoneycombAPIKey
+          - HoneycombDataset
+          - S3FailureBucketArn
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - HoneycombAPIHost
+          - HttpBufferingInterval
+          - HttpBufferingSize
+          - S3BackupMode
+          - S3BufferingInterval
+          - S3BufferingSize
+
+Parameters:
+  HoneycombAPIKey:
+    Type: String
+    NoEcho: true
+    Description: Your Honeycomb Team's API key.
+  HoneycombDataset:
+    Type: String
+    Description: The target Honeycomb dataset for the Stream to publish to.
+  HoneycombAPIHost:
+    Type: String
+    Default: https://api.honeycomb.io
+    Description: Optional. Override the default Honeycomb API host.
+  HttpBufferingInterval:
+    Type: Number
+    Default: 60
+    Description: The Kinesis Firehose http buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  HttpBufferingSize:
+    Type: Number
+    Default: 15
+    Description: The Kinesis Firehose http buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+  S3BackupMode:
+    Type: String
+    Default: FailedDataOnly
+    Description: Should we only backup to S3 data that failed delivery, or all data?
+    AllowedValues:
+      - AllData
+      - FailedDataOnly
+  S3FailureBucketArn:
+    Type: String
+    Description: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
+    ConstraintDescription: The ARN of a S3 Bucket.
+  S3BufferingInterval:
+    Type: Number
+    Default: 400
+    Description: The Kinesis Firehose S3 buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  S3BufferingSize:
+    Type: Number
+    Default: 10
+    Description: The Kinesis Firehose S3 buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+
+Resources:
+  KinesisToHoneycombStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://honeycomb-integrations-us-east-1.s3.amazonaws.com/cloudformation-templates/kinesis-firehose.yml
+      Parameters:
+        Name: !Sub "${AWS::StackName}"
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombDataset: !Ref HoneycombDataset
+        S3FailureBucketArn: !Ref S3FailureBucketArn
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HttpBufferingInterval: !Ref HttpBufferingInterval
+        HttpBufferingSize: !Ref HttpBufferingSize
+        S3BackupMode: !Ref S3BackupMode
+        S3BufferingInterval: !Ref S3BufferingInterval
+        S3BufferingSize: !Ref S3BufferingSize
+  HoneycombMetricStreamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - streams.metrics.cloudwatch.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "honeycomb-stream-policy-${AWS::StackName}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "firehose:PutRecord"
+                  - "firehose:PutRecordBatch"
+                Resource:
+                  - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+  HoneycombCWLStream:
+    Type: AWS::CloudWatch::MetricStream
+    Properties:
+      Name: !Sub "honeycomb-metric-stream-${AWS::StackName}"
+      OutputFormat: opentelemetry0.7
+      FirehoseArn: !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+      RoleArn: !GetAtt HoneycombMetricStreamRole.Arn
+
+Outputs:
+  KinesisDeliveryStreamArn:
+    Description: The ARN of the Firehose Delivery Stream
+    Value: !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+  MetricStreamArn:
+    Description: The ARN of the Metric Stream
+    Value: !GetAtt HoneycombCWLStream.Arn
+  MetricStreamIAMRoleArn:
+    Description: The ARN of IAM Role created for the Metric Stream
+    Value: !GetAtt HoneycombMetricStreamRole.Arn
