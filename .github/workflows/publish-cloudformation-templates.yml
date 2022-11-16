@@ -1,0 +1,33 @@
+name: Publish Cloudformation Templates
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - README.md
+      - CHANGELOG.md
+
+env:
+  AWS_REGION: "us-east-1"
+
+# permission can be added at job level or workflow level
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  publish-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::702835727665:role/product
+          role-session-name: s3publish
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Publish templates
+        run: |
+          make publish-templates

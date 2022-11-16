@@ -5,3 +5,6 @@ validate-templates:
 
 lint-templates:
 	./scripts/lint-templates.sh
+
+publish-templates:
+	./scripts/publish-templates.sh
