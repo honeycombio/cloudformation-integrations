@@ -67,7 +67,7 @@ Parameters:
     Default: 10
     Description: The Kinesis Firehose S3 buffer size, in MiB.
     MinValue: 1
-    MaxValue: 128
+ MaxValue: 128
 
 Resources:
   KinesisToHoneycombStack:
