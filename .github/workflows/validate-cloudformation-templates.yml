@@ -28,6 +28,6 @@ jobs:
 
       - name: Lint Templates
         id: lint
-        uses: giammbo/cfn-lint
+        uses: giammbo/cfn-lint@latest
         with:
           command: make lint-templates
