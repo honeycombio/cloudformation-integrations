@@ -105,7 +105,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: CreateKinesisFirehose
     Properties:
-      TemplateURL: https://honeycomb-integrations-us-east-1.s3.amazonaws.com/cloudformation-templates/kinesis-firehose.yml
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/honeycombio/cloudformation-templates/kinesis-firehose.yml
       Parameters:
         Name: !Sub "${AWS::StackName}"
         HoneycombAPIKey: !Ref HoneycombAPIKey
