@@ -17,7 +17,7 @@ Note: [Terraform modules](https://github.com/honeycombio/terraform-aws-integrati
 
 * [CloudWatch Logs](README.md#cloudwatch-logs)
 
-  * [RDS Logs](README.md#rds-logs)
+  * [RDS Cloudwatch Logs](README.md#rds-logs)
 
 
 * [CloudWatch Metrics](README.md#cloudwatch-metrics)
@@ -120,7 +120,7 @@ This stack supports creating and managing a Kinesis Firehose that streams data r
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
 ```
 
-## RDS Logs
+## RDS Cloudwatch Logs
 
 ### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=rds-logs&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/rds-logs.yml)
 to launch the AWS Cloudformation Console to create the integration stack.
