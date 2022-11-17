@@ -27,38 +27,57 @@ observabiity data to [Honeycomb](https://www.honeycomb.io/).
 
 ### Cloudwatch Logs
 
-[Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=honeycomb-cloudwatch-integration&templateURL=https://s3.amazonaws.com/honeycomb-builds/honeycombio/integrations-for-aws/LATEST/templates/cloudwatch-logs-json.yml) to launch the AWS Cloudformation Console to create the integration stack. 
+### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=cloudwatch-logs&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml) 
+to launch the AWS Cloudformation Console to create the integration stack. 
 
 
-You will need one stack per Cloudwatch Log Group. 
+This stack supports integrating with up to 5 Cloudwatch log groups.
 
-Required inputs:
+**Required inputs:**
 
 - Stack Name
-- Cloudwatch Log Group Name
-- Your honeycomb write key (optionally encrypted)
-- Target honeycomb dataset
 
-Optional inputs:
 
-- Sample rate
-- The ID of the AWS Key Management Service key used to encrypt your write key. If your write key is not encrypted, do not set a value here
+- Honeycomb API Key: Your Honeycomb Team's API key.
+
+
+- Honeycomb Dataset: The target Honeycomb dataset for the Stream to publish to.
+
+
+- Log Group Name: At least 1 Cloudwatch log group name
+
+
+- S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
 
 ### Cloudwatch Metrics
 
-[Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=honeycomb-cloudwatch-integration&templateURL=https://s3.amazonaws.com/honeycomb-builds/honeycombio/integrations-for-aws/LATEST/templates/cloudwatch-logs-json.yml) to launch the AWS Cloudformation Console to create the integration stack.
+### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=cloudwatch-metrics&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-metrics.yml) 
+to launch the AWS Cloudformation Console to create the integration stack.
 
 
-You will need one stack per Cloudwatch Log Group.
+This stack supports integrating with all metrics flowing to Cloudwatch Metrics. Optional filters are available to include or exclude AWS services - without them all metrics will be turned on.
 
-Required inputs:
+**Required inputs:**
 
 - Stack Name
-- Cloudwatch Log Group Name
-- Your honeycomb write key (optionally encrypted)
-- Target honeycomb dataset
 
-Optional inputs:
 
-- Sample rate
-- The ID of the AWS Key Management Service key used to encrypt your write key. If your write key is not encrypted, do not set a value here
+- Honeycomb API Key: Your Honeycomb Team's API key.
+
+
+- Honeycomb Dataset: The target Honeycomb dataset for the Stream to publish to.
+
+
+- S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+
+**Callout:**
+
+// TODO: ADD SUPPORT FOR THIS OR REMOVE THIS SECTION. IS SUPPORTED BY TF ATM.
+
+Optional input to reduce the metrics from Services being sent to Honeycomb:
+
+- Namespace Include
+
+OR
+
+- Namespace Exclude
