@@ -43,6 +43,7 @@ This stack supports integrating with up to 5 Cloudwatch log groups.
 
 **Required inputs:**
 
+```
 - Stack Name
 
 
@@ -56,6 +57,7 @@ This stack supports integrating with up to 5 Cloudwatch log groups.
 
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+```
 
 ## Cloudwatch Metrics
 
@@ -66,7 +68,7 @@ to launch the AWS Cloudformation Console to create the integration stack.
 This stack supports integrating with all metrics flowing to Cloudwatch Metrics. Optional filters are available to include or exclude AWS services - without them all metrics will be turned on.
 
 **Required inputs:**
-
+```
 - Stack Name
 
 
@@ -77,6 +79,7 @@ This stack supports integrating with all metrics flowing to Cloudwatch Metrics. 
 
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
+```
 
 **Callout:**
 
@@ -84,11 +87,13 @@ This stack supports integrating with all metrics flowing to Cloudwatch Metrics. 
 
 Optional input to reduce the metrics from Services being sent to Honeycomb:
 
+```
 - Namespace Include
 
 OR (cannot have both)
 
 - Namespace Exclude
+```
 
 ## Kinesis Firehose stream to Honeycomb
 
@@ -99,7 +104,7 @@ to launch the AWS Cloudformation Console to create the integration stack.
 This stack supports creating and managing a Kinesis Firehose that streams data received to Honeycomb.
 
 **Required inputs:**
-
+```
 - Stack Name
 
 
@@ -113,7 +118,7 @@ This stack supports creating and managing a Kinesis Firehose that streams data r
 
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
-
+```
 
 ## RDS Logs
 
@@ -124,7 +129,7 @@ to launch the AWS Cloudformation Console to create the integration stack.
 This stack supports integrating RDS logs from Cloudwatch to a Kinesis Firehose that includes a data transform to **structure** the logs before sending them to Honeycomb.
 
 **Required inputs:**
-
+```
 - Stack Name
 
 
@@ -141,3 +146,4 @@ This stack supports integrating RDS logs from Cloudwatch to a Kinesis Firehose t
 
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+```
