@@ -1,0 +1,32 @@
+name: Publish Cloudformation Templates
+
+on:
+  workflow_dispatch:
+  release:
+    types: [released]
+  pull_request:
+    paths-ignore:
+      - README.md
+      - CHANGELOG.md
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.PUBLISH_AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLISH_AWS_SECRET_ACCESS_KEY }}
+  PR_NUMBER: ${{ github.event.number }}
+
+jobs:
+  publish-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Publish Templates
+        id: publish_prs
+        run: make publish-templates folder=prs version=$PR_NUMBER
+        if: github.event_name == 'pull_request'
+
+      - name: Publish Templates
+        id: publish_latest
+        run: make publish-templates folder=latest
+        if: github.event_name == 'release'
