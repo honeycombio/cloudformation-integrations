@@ -2,7 +2,7 @@
 
 [![OSS Lifecycle](https://img.shields.io/osslifecycle/honeycombio/cloudformation-integrations)](https://github.com/honeycombio/home/blob/main/honeycomb-oss-lifecycle-and-practices.md)
 
-This repository contains a collection of CloudFormation templates for resources in [AWS](https://aws.amazon.com/) to send 
+This repository contains a collection of [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) templates for resources in [AWS](https://aws.amazon.com/) to send 
 observabiity data to [Honeycomb](https://www.honeycomb.io/).
 
 ## How does this work?
@@ -10,22 +10,29 @@ observabiity data to [Honeycomb](https://www.honeycomb.io/).
 ![AWS Integrations architecture](docs/overview.png?raw=true)
 
 
-## **Integrations supported are:**
+## Use
 
-* [CloudWatch Logs](FIX ME)
+### **Integrations supported are:**
 
-  * [RDS Logs](FIX ME)
+* [CloudWatch Logs](README.md#cloudwatch-logs)
+
+  * [RDS Logs](README.md#rds-logs)
 
 
-* [CloudWatch Metrics](FIX ME)
+* [CloudWatch Metrics](README.md#cloudwatch-metrics)
 
 
 * [Logs from a S3 bucket](FIX ME)
 
 
-## Use
+* [Kinesis Firehose Stream to Honeycomb](README.md#kinesis-firehose-stream-to-honeycomb)
 
-### Cloudwatch Logs
+### Caveats & Troubleshooting
+
+* If the stack create fails - we recommend a complete delete and recreate to ensure all dependencies properly get created.
+
+
+## Cloudwatch Logs
 
 ### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=cloudwatch-logs&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml) 
 to launch the AWS Cloudformation Console to create the integration stack. 
@@ -49,7 +56,7 @@ This stack supports integrating with up to 5 Cloudwatch log groups.
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
 
-### Cloudwatch Metrics
+## Cloudwatch Metrics
 
 ### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=cloudwatch-metrics&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-metrics.yml) 
 to launch the AWS Cloudformation Console to create the integration stack.
@@ -68,7 +75,7 @@ This stack supports integrating with all metrics flowing to Cloudwatch Metrics. 
 - Honeycomb Dataset: The target Honeycomb dataset for the Stream to publish to.
 
 
-- S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+- S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
 
 **Callout:**
 
@@ -78,6 +85,58 @@ Optional input to reduce the metrics from Services being sent to Honeycomb:
 
 - Namespace Include
 
-OR
+OR (cannot have both)
 
 - Namespace Exclude
+
+## Kinesis Firehose stream to Honeycomb
+
+### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=kinesis-firehose-stream&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml)
+to launch the AWS Cloudformation Console to create the integration stack.
+
+
+This stack supports creating and managing a Kinesis Firehose that streams data received to Honeycomb.
+
+**Required inputs:**
+
+- Stack Name
+
+
+- Name: A name for this Kinesis Firehose Delivery Stream
+
+
+- Honeycomb API Key: Your Honeycomb Team's API key.
+
+
+- Honeycomb Dataset: The target Honeycomb dataset for the Stream to publish to.
+
+
+- S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
+
+
+## RDS Logs
+
+### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=rds-logs&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/rds-logs.yml)
+to launch the AWS Cloudformation Console to create the integration stack.
+
+
+This stack supports integrating RDS logs from Cloudwatch to a Kinesis Firehose that includes a data transform to **structure** the logs before sending them to Honeycomb.
+
+**Required inputs:**
+
+- Stack Name
+
+
+- DB Engine Type: Select the Engine type of your RDS database.
+
+
+- Honeycomb API Key: Your Honeycomb Team's API key.
+
+
+- Honeycomb Dataset: The target Honeycomb dataset for the Stream to publish to.
+
+
+- Log Group Name: At least 1 Cloudwatch log group name to which the DB is sending logs
+
+
+- S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
