@@ -1,7 +1,9 @@
-name: Publish Cloudformation Templates - Pull Requests
+name: Publish Cloudformation Templates
 
 on:
   workflow_dispatch:
+  release:
+    types: [released]
   pull_request:
     paths-ignore:
       - README.md
@@ -20,5 +22,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Publish Templates
-        id: validate
+        id: publish_prs
         run: make publish-templates folder=prs version=$PR_NUMBER
+        if: github.event_name == 'pull_request'
+
+      - name: Publish Templates
+        id: publish_latest
+        run: make publish-templates folder=latest
+        if: github.event_name == 'release'
