@@ -9,6 +9,7 @@ observabiity data to [Honeycomb](https://www.honeycomb.io/).
 
 ![AWS Integrations architecture](docs/overview.png?raw=true)
 
+Note: [Terraform modules](https://github.com/honeycombio/terraform-aws-integrations) are also available that support AWS to Honeycomb Integrations.
 
 ## Use
 
