@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Delivers RDS Logs to Honeycomb.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required Parameters
+        Parameters:
+          - DBEngineType
+          - HoneycombAPIKey
+          - HoneycombDataset
+          - LogGroupName
+          - S3FailureBucketArn
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - HoneycombAPIHost
+          - HttpBufferingInterval
+          - HttpBufferingSize
+          - LambdaFunctionMemory
+          - LambdaFunctionTimeout
+          - LogGroupName1
+          - LogGroupName2
+          - LogGroupName3
+          - LogGroupName4
+          - LogGroupName5
+          - S3BackupMode
+          - S3BufferingInterval
+          - S3BufferingSize
+
+Parameters:
+  DBEngineType:
+    Type: String
+    Description: The Engine type of your RDS database.
+    AllowedValues:
+      - aurora-mysql
+      - aurora-postgresql
+      - mariabdb
+      - sqlserver
+      - mysql
+      - oracle
+      - postgresql
+  HoneycombAPIKey:
+    Type: String
+    NoEcho: true
+    Description: Your Honeycomb Team's API key.
+  HoneycombDataset:
+    Type: String
+    Description: The target Honeycomb dataset for the Stream to publish to.
+  HoneycombAPIHost:
+    Type: String
+    Default: https://api.honeycomb.io
+    Description: Optional. Override the default Honeycomb API host.
+  HttpBufferingInterval:
+    Type: Number
+    Default: 60
+    Description: The Kinesis Firehose http buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  HttpBufferingSize:
+    Type: Number
+    Default: 15
+    Description: The Kinesis Firehose http buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+  LogGroupName:
+    Type: String
+    Description: >-
+      The name of the CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
+      e.g. "/aws/rds/instance/mydatabase/slowquery"
+    MinLength: 1
+    MaxLength: 512
+  LogGroupName1:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName2:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName3:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName4:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName5:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LambdaFunctionMemory:
+    Type: Number
+    Default: 192
+    Description: The amount of memory (in MB) allocated to the Transform Lambda function.
+    MinValue: 128
+    MaxValue: 10240
+  LambdaFunctionTimeout:
+    Type: Number
+    Default: 600
+    Description: The amount of time (in seconds) the Transform Lambda is allowed to run before it will be stopped.
+    MinValue: 1
+    MaxValue: 900
+  S3BackupMode:
+    Type: String
+    Default: FailedDataOnly
+    Description: Should we only backup to S3 data that failed delivery, or all data?
+    AllowedValues:
+      - AllData
+      - FailedDataOnly
+  S3FailureBucketArn:
+    Type: String
+    Description: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
+    ConstraintDescription: The ARN of a S3 Bucket.
+  S3BufferingInterval:
+    Type: Number
+    Default: 400
+    Description: The Kinesis Firehose S3 buffer interval, in seconds.
+    MinValue: 60
+    MaxValue: 900
+  S3BufferingSize:
+    Type: Number
+    Default: 10
+    Description: The Kinesis Firehose S3 buffer size, in MiB.
+    MinValue: 1
+    MaxValue: 128
+
+Conditions:
+  EnableLambdaTransform: !Or
+    - !Equals [!Ref DBEngineType, "mysql"]
+    - !Equals [!Ref DBEngineType, "postgresql"]
+
+Resources:
+  CWLtoHoneycombStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml
+      Parameters:
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombDataset: !Ref HoneycombDataset
+        S3FailureBucketArn: !Ref S3FailureBucketArn
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HttpBufferingInterval: !Ref HttpBufferingInterval
+        HttpBufferingSize: !Ref HttpBufferingSize
+        LogGroupName: !Ref LogGroupName
+        LogGroupName1: !Ref LogGroupName1
+        LogGroupName2: !Ref LogGroupName2
+        LogGroupName3: !Ref LogGroupName3
+        LogGroupName4: !Ref LogGroupName4
+        LogGroupName5: !Ref LogGroupName5
+        S3BackupMode: !Ref S3BackupMode
+        S3BufferingInterval: !Ref S3BufferingInterval
+        S3BufferingSize: !Ref S3BufferingSize
+        TransformLambdaArn: !If
+          - EnableLambdaTransform
+          - !GetAtt TransformLambda.Arn
+          - AWS::NoValue
+  TransformLambdaRole:
+    Type: AWS::IAM::Role
+    Condition: EnableLambdaTransform
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  TransformLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Condition: EnableLambdaTransform
+    Properties:
+      PolicyName: !Sub "honeycomb-lambda-transform-${AWS::StackName}"
+      Roles:
+        - Ref: TransformLambdaRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "firehose:PutRecordBatch"
+            Resource:
+              - !GetAtt CWLtoHoneycombStack.Outputs.KinesisDeliveryStreamArn
+  TransformLambda:
+    Type: AWS::Lambda::Function
+    Condition: EnableLambdaTransform
+    Properties:
+      FunctionName: !Sub "honeycomb-rds-log-parser-${AWS::StackName}"
+      Description: Parses RDS logs coming off of Kinesis Firehose, sending them back to the Firehose as structured JSON events.
+      Role: !GetAtt TransformLambdaRole.Arn
+      Handler: !Sub
+        - "rds-${DBEngine}-kfh-transform"
+        - DBEngine: !Ref DBEngineType
+      Runtime: "go1.x"
+      MemorySize: !Ref LambdaFunctionMemory
+      Timeout: !Ref LambdaFunctionTimeout
+      PackageType: Zip
+      Code:
+        S3Bucket: !Sub "honeycomb-integrations-${AWS::Region}"
+        S3Key: agentless-integrations-for-aws/LATEST/ingest-handlers.zip
+
+Outputs:
+  KinesisDeliveryStreamArn:
+    Description: The ARN of the Firehose Delivery Stream
+    Value: !GetAtt CWLtoHoneycombStack.Outputs.KinesisDeliveryStreamArn
+  TransformLambdaArn:
+    Condition: EnableLambdaTransform
+    Description: The ARN of the Kinesis Transform Lambda function
+    Value: !GetAtt TransformLambda.Arn
+  TransformLambdaRoleArn:
+    Condition: EnableLambdaTransform
+    Description: The ARN of IAM Role created for the Transform Lambda function
+    Value: !GetAtt TransformLambdaRole.Arn
