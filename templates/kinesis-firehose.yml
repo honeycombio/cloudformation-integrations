@@ -31,7 +31,7 @@ Parameters:
     Type: String
     Description: A name for this Kinesis Firehose Delivery Stream
     MinLength: 1
-    MaxLength: 32
+    MaxLength: 64
   HoneycombAPIKey:
     Type: String
     NoEcho: true

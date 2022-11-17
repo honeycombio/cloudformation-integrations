@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Delivers a the contents of a Cloudwatch LogGroup to Honeycomb via a Kinesis Firehose Delivery Stream.
+  Delivers the contents of a Cloudwatch LogGroup to Honeycomb via a Kinesis Firehose Delivery Stream.
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -19,6 +19,11 @@ Metadata:
           - HttpBufferingInterval
           - HttpBufferingSize
           - LogFilterPattern
+          - LogGroupName1
+          - LogGroupName2
+          - LogGroupName3
+          - LogGroupName4
+          - LogGroupName5
           - S3BackupMode
           - S3BufferingInterval
           - S3BufferingSize
@@ -51,6 +56,7 @@ Parameters:
     MaxValue: 128
   KinesisFirehoseArn:
     Type: String
+    Default: ""
     Description: >-
       By default, a Kinesis Firehose Delivery Stream will be created.
       You can override this behaviour by providing an Arn of an existing Firehose Delivery Stream
@@ -59,8 +65,33 @@ Parameters:
     ConstraintDescription: The Arn of an existing Kinesis Firehose Delivery Stream.
   LogGroupName:
     Type: String
-    Description: The CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
+    Description: The name of the CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
     MinLength: 1
+    MaxLength: 512
+  LogGroupName1:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName2:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName3:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName4:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName5:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
     MaxLength: 512
   LogFilterPattern:
     Type: String
@@ -99,6 +130,11 @@ Parameters:
 
 Conditions:
   CreateKinesisFirehose: !Equals [!Ref KinesisFirehoseArn, ""]
+  LogGroup1Enabled: !Not [!Equals [!Ref LogGroupName1, ""]]
+  LogGroup2Enabled: !Not [!Equals [!Ref LogGroupName2, ""]]
+  LogGroup3Enabled: !Not [!Equals [!Ref LogGroupName3, ""]]
+  LogGroup4Enabled: !Not [!Equals [!Ref LogGroupName4, ""]]
+  LogGroup5Enabled: !Not [!Equals [!Ref LogGroupName5, ""]]
 
 Resources:
   KinesisToHoneycombStack:
@@ -153,6 +189,61 @@ Resources:
     Properties:
       RoleArn: !GetAtt LogStreamRole.Arn
       LogGroupName: !Ref LogGroupName
+      FilterPattern: !Ref LogFilterPattern
+      DestinationArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
+  LogSubscription1:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: LogGroup1Enabled
+    Properties:
+      RoleArn: !GetAtt LogStreamRole.Arn
+      LogGroupName: !Ref LogGroupName1
+      FilterPattern: !Ref LogFilterPattern
+      DestinationArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
+  LogSubscription2:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: LogGroup2Enabled
+    Properties:
+      RoleArn: !GetAtt LogStreamRole.Arn
+      LogGroupName: !Ref LogGroupName2
+      FilterPattern: !Ref LogFilterPattern
+      DestinationArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
+  LogSubscription3:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: LogGroup3Enabled
+    Properties:
+      RoleArn: !GetAtt LogStreamRole.Arn
+      LogGroupName: !Ref LogGroupName3
+      FilterPattern: !Ref LogFilterPattern
+      DestinationArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
+  LogSubscription4:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: LogGroup4Enabled
+    Properties:
+      RoleArn: !GetAtt LogStreamRole.Arn
+      LogGroupName: !Ref LogGroupName4
+      FilterPattern: !Ref LogFilterPattern
+      DestinationArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
+  LogSubscription5:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: LogGroup5Enabled
+    Properties:
+      RoleArn: !GetAtt LogStreamRole.Arn
+      LogGroupName: !Ref LogGroupName5
       FilterPattern: !Ref LogFilterPattern
       DestinationArn: !If
         - CreateKinesisFirehose
