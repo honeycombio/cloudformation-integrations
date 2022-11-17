@@ -29,7 +29,7 @@ observabiity data to [Honeycomb](https://www.honeycomb.io/).
 
 ### Caveats & Troubleshooting
 
-* If the stack create fails - we recommend a complete delete and recreate to ensure all dependencies properly get created.
+* If on initial set up the stack create fails - we recommend a complete delete and recreate to ensure all dependencies properly get created.
 
 
 ## Cloudwatch Logs
