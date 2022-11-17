@@ -142,7 +142,7 @@ Resources:
   CWLtoHoneycombStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/cloudwatch-logs.yml
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml
       Parameters:
         HoneycombAPIKey: !Ref HoneycombAPIKey
         HoneycombDataset: !Ref HoneycombDataset
