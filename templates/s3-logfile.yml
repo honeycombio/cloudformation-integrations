@@ -150,13 +150,11 @@ Resources:
                 Action:
                   - "s3:GetBucketNotification"
                   - "s3:PutBucketNotification"
-                  - "s3:*"
                 Resource:
                   - !Ref S3BucketArn
-                  - "*"
               - Effect: Allow
                 Action:
-                  - "s3:*"
+                  - "s3:GetObject"
                 Resource:
                   - !Sub ["${S3BucketArn}/*", S3BucketArn: !Ref S3BucketArn]
               - Effect: Allow
@@ -217,8 +215,8 @@ Resources:
                   elif requestType == 'Create' or requestType == 'Update':
                       LambdaArn = event['ResourceProperties']['LambdaArn']
                       Bucket = event['ResourceProperties']['Bucket']
-                      FilterPrefix = Bucket = event['ResourceProperties']['FilterPrefix']
-                      FilterSuffix = Bucket = event['ResourceProperties']['FilterSuffix']
+                      FilterPrefix = event['ResourceProperties']['FilterPrefix']
+                      FilterSuffix = event['ResourceProperties']['FilterSuffix']
                       add_notification(LambdaArn, Bucket, FilterPrefix, FilterSuffix)
                       responseStatus = 'SUCCESS'
                       responseData = {'Bucket': Bucket}
