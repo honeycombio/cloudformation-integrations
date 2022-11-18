@@ -1,0 +1,288 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Reads logs from a S3 Bucket and ships them to Honeycomb.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required Parameters
+        Parameters:
+          - HoneycombAPIKey
+          - HoneycombDataset
+          - ParserType
+          - S3BucketArn
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - HoneycombAPIHost
+          - Environment
+          - FilterFields
+          - RenameFields
+          - KMSKeyId
+          - LambdaFunctionMemory
+          - LambdaFunctionTimeout
+          - SampleRate
+          - S3FilterPrefix
+          - S3FilterSuffix
+
+Parameters:
+  HoneycombAPIKey:
+    Type: String
+    NoEcho: true
+    Description: Your Honeycomb Team's API key.
+  HoneycombDataset:
+    Type: String
+    Description: The target Honeycomb dataset for the Stream to publish to.
+  HoneycombAPIHost:
+    Type: String
+    Default: https://api.honeycomb.io
+    Description: Optional. Override the default Honeycomb API host.
+  Environment:
+    Type: String
+    Default: ""
+    Description: Name of environment. This will be included in log events sent to Honeycomb.
+  FilterFields:
+    Type: String
+    Description: Comma-separated simple strings to specify which field names to remove from events
+    Default: ""
+  RenameFields:
+    Type: String
+    Description: Comma-separated list of k=v pairs to rename fields.
+    Default: ""
+  KMSKeyId:
+    Type: String
+    Default: ""
+    Description: "KMS Key ID used to encrypt your Honeycomb write key (ex: a80d80aa-19b5-486a-a163-a4502b5555)"
+  LambdaFunctionMemory:
+    Type: Number
+    Default: 192
+    Description: The amount of memory (in MB) allocated to the Transform Lambda function.
+    MinValue: 128
+    MaxValue: 10240
+  LambdaFunctionTimeout:
+    Type: Number
+    Default: 600
+    Description: The amount of time (in seconds) the Transform Lambda is allowed to run before it will be stopped.
+    MinValue: 1
+    MaxValue: 900
+  ParserType:
+    Type: String
+    Description: The type of logfile to parse.
+    AllowedValues:
+      - "alb"
+      - "elb"
+      - "cloudfront"
+      - "s3-access"
+      - "vpc-flow"
+      - "json"
+      - "keyval"
+  S3BucketArn:
+    Type: String
+    Description: The full ARN of the bucket storing the logs.
+  S3FilterPrefix:
+    Type: String
+    Description: Prefix within the logs bucket to restrict processing.
+    Default: ""
+  S3FilterSuffix:
+    Type: String
+    Description: The suffix of the files in the bucket which should be processed.
+    Default: ".gz"
+  SampleRate:
+    Type: Number
+    Description: The rate to sample the logs at. See https://honeycomb.io/docs/guides/sampling/.
+    Default: 1
+
+Conditions:
+  EncryptionEnabled: !Not [!Equals [!Ref KMSKeyId, ""]]
+
+Resources:
+  S3LambdaHandler:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "s3processor-${AWS::StackName}"
+      Description: Parses logs from S3 and sends them to Honeycomb as structured logs.
+      Handler: s3-handler
+      MemorySize: !Ref LambdaFunctionMemory
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: "go1.x"
+      Timeout: !Ref LambdaFunctionTimeout
+      PackageType: Zip
+      Code:
+        S3Bucket: !Sub "honeycomb-integrations-${AWS::Region}"
+        S3Key: agentless-integrations-for-aws/LATEST/ingest-handlers.zip
+      Environment:
+        Variables:
+          PARSER_TYPE: !Ref ParserType
+          FORCE_GUNZIP: true
+          ENVIRONMENT: !Ref Environment
+          HONEYCOMB_WRITE_KEY: !Ref HoneycombAPIKey
+          KMS_KEY_ID: !Ref KMSKeyId
+          API_HOST: !Ref HoneycombAPIHost
+          DATASET: !Ref HoneycombDataset
+          SAMPLE_RATE: !Ref SampleRate
+          FILTER_FIELDS: !Ref FilterFields
+          RENAME_FIELDS: !Ref RenameFields
+  LambdaExecutePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt S3LambdaHandler.Arn
+      Principal: "s3.amazonaws.com"
+      SourceAccount: !Ref "AWS::AccountId"
+      SourceArn: !Ref S3BucketArn
+  LambdaIAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "honeycomb-s3-handler-policy-${AWS::StackName}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:GetBucketNotification"
+                  - "s3:PutBucketNotification"
+                Resource:
+                  - !Ref S3BucketArn
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject"
+                Resource:
+                  - !Sub ["${S3BucketArn}/*", S3BucketArn: !Ref S3BucketArn]
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*"
+  LambdaKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Condition: EncryptionEnabled
+    Properties:
+      PolicyName: !Sub "kmsdecrypt-policy-${AWS::StackName}"
+      Roles:
+        - Ref: LambdaIAMRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "kms:Decrypt"
+            Resource:
+              - !Sub
+                - "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${KMSKeyId}"
+                - KMSKeyId: !Ref KMSKeyId
+  CustomS3NotificationResource:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: python3.9
+      Timeout: 50
+      Code:
+        ZipFile: |
+
+          import os
+          import json
+          import boto3
+          import cfnresponse
+
+          print('Loading function...')
+          s3 = boto3.resource('s3', region_name=os.environ.get(
+            'AWS_REGION', 'us-east-1'))
+
+
+          def lambda_handler(event, context):
+              print('Received event: ' + json.dumps(event, indent=2))
+              responseData = {}
+              responseStatus = 'FAILED'
+              try:
+                  requestType = event['RequestType']
+                  print('Got ' + requestType + ' request')
+                  if requestType == 'Delete':
+                      Bucket = event['ResourceProperties']['Bucket']
+                      delete_notification(Bucket)
+                      responseStatus = 'SUCCESS'
+                  elif requestType == 'Create' or requestType == 'Update':
+                      LambdaArn = event['ResourceProperties']['LambdaArn']
+                      Bucket = event['ResourceProperties']['Bucket']
+                      FilterPrefix = event['ResourceProperties']['FilterPrefix']
+                      FilterSuffix = event['ResourceProperties']['FilterSuffix']
+                      add_notification(LambdaArn, Bucket, FilterPrefix, FilterSuffix)
+                      responseStatus = 'SUCCESS'
+                      responseData = {'Bucket': Bucket}
+                  else:
+                      errMsg = 'Unknown request type: ' + requestType
+                      print(errMsg)
+                      responseData = {'Failure': errMsg}
+              except Exception as e:
+                  print('Failed to process request:', e)
+                  responseData = {'Failure': 'Something bad happened.'}
+              print('Sending response to custom resource...')
+              cfnresponse.send(event, context, responseStatus, responseData)
+
+
+          def add_notification(LambdaArn, Bucket, FilterPrefix, FilterSuffix):
+              bucket_notification = s3.BucketNotification(Bucket)
+              bucket_notification.put(
+                  NotificationConfiguration={
+                      'LambdaFunctionConfigurations': [
+                          {
+                              'LambdaFunctionArn': LambdaArn,
+                              'Events': [
+                                  's3:ObjectCreated:*'
+                              ],
+                              'Filter': {
+                                  'Key': {
+                                      'FilterRules': [
+                                          {
+                                              'Name': 'Prefix',
+                                              'Value': FilterPrefix,
+                                          },
+                                          {
+                                              'Name': 'Suffix',
+                                              'Value': FilterSuffix,
+                                          },
+                                      ]
+                                  },
+                              },
+                          }
+                      ]
+                  }
+              )
+
+
+          def delete_notification(Bucket):
+              bucket_notification = s3.BucketNotification(Bucket)
+              bucket_notification.put(
+                  NotificationConfiguration={}
+              )
+
+  LambdaNotificationHook:
+    Type: "Custom::LambdaTrigger"
+    DependsOn: LambdaExecutePermission
+    Properties:
+      ServiceToken: !GetAtt CustomS3NotificationResource.Arn
+      LambdaArn: !GetAtt S3LambdaHandler.Arn
+      Bucket: !Select [5, !Split [":", !Ref S3BucketArn]]
+      FilterPrefix: !Ref S3FilterPrefix
+      FilterSuffix: !Ref S3FilterSuffix
+
+Outputs:
+  S3ProcessorLambdaArn:
+    Description: The ARN of the S3 Log Processor Lambda
+    Value: !GetAtt S3LambdaHandler.Arn
+  S3ProcessorLambdaIAMRoleArn:
+    Description: The ARN of the IAM Role created for the S3 Log Processor Lambda
+    Value: !GetAtt LambdaIAMRole.Arn
