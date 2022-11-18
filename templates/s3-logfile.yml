@@ -129,6 +129,8 @@ Resources:
       Action: "lambda:InvokeFunction"
       FunctionName: !GetAtt S3LambdaHandler.Arn
       Principal: "s3.amazonaws.com"
+      SourceAccount: !Ref "AWS::AccountId"
+      SourceArn: !Ref S3BucketArn
   LambdaIAMRole:
     Type: "AWS::IAM::Role"
     Properties:
