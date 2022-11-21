@@ -16,12 +16,24 @@ Metadata:
           - EnableCloudWatchMetrics
           - CloudWatchMetricsDataset
           - CloudWatchLogsDataset
+          - LogGroupName
+          - LogGroupName1
+          - LogGroupName2
+          - LogGroupName3
+          - LogGroupName4
+          - LogGroupName5
           - RDSLogGroupName
           - RDSLogGroupName1
           - RDSLogGroupName2
           - RDSLogGroupName3
           - RDSLogGroupName4
           - RDSLogGroupName5
+          - S3LogsDataset
+          - S3LogsBucketArn
+          - S3LogsParserType
+          - S3LogsEnvironment
+          - S3LogsFilterPrefix
+          - S3LogsFilterSuffix
 
 Parameters:
   HoneycombAPIKey:
@@ -48,6 +60,36 @@ Parameters:
     Type: String
     Default: cloudwatch-metrics
     Description: The name of the Honeycomb Dataset to publish CloudWatch Metrics to.
+  LogGroupName:
+    Type: String
+    Description: The name of the CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
+    Default: ""
+    MaxLength: 512
+  LogGroupName1:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName2:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName3:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName4:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName5:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
   RDSLogsDataset:
     Type: String
     Default: rds-logs
@@ -98,10 +140,49 @@ Parameters:
     Default: ""
     Description: The name of an additional CloudWatch RDS Log Group to publish.
     MaxLength: 512
+  S3LogsDataset:
+    Type: String
+    Default: lb-access-logs
+    Description: The name of the Honeycomb Dataset to publish parsed S3 logs to.
+  S3LogsBucketArn:
+    Type: String
+    Default: ""
+    Description: The ARN of the S3 Bucket storing the service logs. (e.g. ALB, CloudFront)
+  S3LogsParserType:
+    Type: String
+    Default: ""
+    Description: The type of logfile to parse.
+    AllowedValues:
+      - ""
+      - "alb"
+      - "elb"
+      - "cloudfront"
+      - "s3-access"
+      - "vpc-flow"
+      - "json"
+      - "keyval"
+  S3LogsEnvironment:
+    Type: String
+    Description: Name of environment. This will be included in log events sent to Honeycomb.
+    Default: ""
+  S3LogsFilterPrefix:
+    Type: String
+    Description: Prefix within the logs bucket to restrict processing.
+    Default: ""
+  S3LogsFilterSuffix:
+    Type: String
+    Description: The suffix of the files in the bucket which should be processed.
+    Default: ".gz"
+  S3LogsSampleRate:
+    Type: Number
+    Default: 1
+    Description: The rate to sample the logs at. See https://honeycomb.io/docs/guides/sampling/.
 
 Conditions:
+  CloudWatchLogsEnabled: !Not [!Equals [!Ref LogGroupName, ""]]
   MetricStreamEnabled: !Equals [!Ref EnableCloudWatchMetrics, "true"]
   RDSLogsEnabled: !Not [!Equals [!Ref RDSDBEngineType, ""]]
+  S3LogsEnabled: !Not [!Equals [!Ref S3LogsBucketArn, ""]]
 
 Rules:
   RDSLogGroupNameSetWithDBEngine:
@@ -109,6 +190,11 @@ Rules:
     Assertions:
       - Assert: !Not [!Equals [!Ref RDSLogGroupName, ""]]
         AssertDescription: "At least one RDSLogGroup must be provided when enabling the RDS Logs integration."
+  ParserTypeSetWithS3LogsBucket:
+    RuleCondition: !Not [!Equals [!Ref S3LogsBucketArn, ""]]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref S3LogsParserType, ""]]
+        AssertDescription: "You must select a S3 Log Parser Type when providing a S3 Logs Bucket."
 
 Resources:
   StreamFailureBucket:
@@ -120,16 +206,37 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: "aws:kms"
-  HoneycombStream:
+  LogStream:
     Type: AWS::CloudFormation::Stack
+    Condition: CloudWatchLogsEnabled
     Properties:
-      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml
       Parameters:
-        Name: !Sub "honeycomb-${AWS::StackName}"
         HoneycombAPIKey: !Ref HoneycombAPIKey
         HoneycombAPIHost: !Ref HoneycombAPIHost
         HoneycombDataset: !Ref CloudWatchLogsDataset
         S3FailureBucketArn: !GetAtt StreamFailureBucket.Arn
+        LogGroupName: !Ref LogGroupName
+        LogGroupName1: !Ref LogGroupName1
+        LogGroupName2: !Ref LogGroupName2
+        LogGroupName3: !Ref LogGroupName3
+        LogGroupName4: !Ref LogGroupName4
+        LogGroupName5: !Ref LogGroupName5
+  S3LogParser:
+    Type: AWS::CloudFormation::Stack
+    Condition: S3LogsEnabled
+    Properties:
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/s3-logfile.yml
+      Parameters:
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HoneycombDataset: !Ref S3LogsDataset
+        S3BucketArn: !Ref S3LogsBucketArn
+        ParserType: !Ref S3LogsParserType
+        Environment: !Ref S3LogsEnvironment
+        SampleRate: !Ref S3LogsSampleRate
+        S3FilterPrefix: !Ref S3LogsFilterPrefix
+        S3FilterSuffix: !Ref S3LogsFilterSuffix
   MetricsStream:
     Type: AWS::CloudFormation::Stack
     Condition: MetricStreamEnabled
@@ -163,8 +270,9 @@ Outputs:
     Description: The ARN of the S3 Bucket created to hold stream delivery failures.
     Value: !GetAtt StreamFailureBucket.Arn
   KinesisStreamArn:
-    Description: The ARN of the Kinesis Firehose Stream sending data to Honeycomb
-    Value: !GetAtt HoneycombStream.Outputs.KinesisDeliveryStreamArn
+    Condition: CloudWatchLogsEnabled
+    Description: The ARN of the Kinesis Firehose Stream sending CloudWatch Logs to Honeycomb
+    Value: !GetAtt LogStream.Outputs.KinesisDeliveryStreamArn
   MetricsStreamArn:
     Condition: MetricStreamEnabled
     Description: The ARN of the Metrics Stream.
@@ -177,3 +285,11 @@ Outputs:
     Condition: RDSLogsEnabled
     Description: The ARN of the Kinesis Firehose Stream sending RDS logs to Honeycomb.
     Value: !GetAtt RDSLogs.Outputs.KinesisDeliveryStreamArn
+  S3LogsProcessorLambdaArn:
+    Condition: S3LogsEnabled
+    Description: The ARN of the S3 Log Processor Lambda
+    Value: !GetAtt S3LogParser.Outputs.S3ProcessorLambdaArn
+  S3LogsProcessorLambdaIAMRoleArn:
+    Condition: S3LogsEnabled
+    Description: The ARN of the IAM Role created for the S3 Log Processor Lambda
+    Value: !GetAtt S3LogParser.Outputs.S3ProcessorLambdaIAMRoleArn
