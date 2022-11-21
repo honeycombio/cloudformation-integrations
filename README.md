@@ -23,7 +23,7 @@ Note: [Terraform modules](https://github.com/honeycombio/terraform-aws-integrati
 * [CloudWatch Metrics](README.md#cloudwatch-metrics)
 
 
-* [Logs from a S3 bucket](FIX ME)
+* [Logs from a S3 bucket](README.md#logs-from-a-bucket)
 
 
 * [Kinesis Firehose Stream to Honeycomb](README.md#kinesis-firehose-stream-to-honeycomb)
@@ -65,7 +65,7 @@ This stack supports integrating with up to 5 Cloudwatch log groups.
 to launch the AWS Cloudformation Console to create the integration stack.
 
 
-This stack supports integrating with all metrics flowing to Cloudwatch Metrics. Optional filters are available to include or exclude AWS services - without them all metrics will be turned on.
+This stack supports integrating with all metrics flowing to Cloudwatch Metrics.
 
 **Required inputs:**
 ```
@@ -79,20 +79,6 @@ This stack supports integrating with all metrics flowing to Cloudwatch Metrics. 
 
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
-```
-
-**Callout:**
-
-// TODO: ADD SUPPORT FOR THIS OR REMOVE THIS SECTION. IS SUPPORTED BY TF ATM.
-
-Optional input to reduce the metrics from Services being sent to Honeycomb:
-
-```
-- Namespace Include
-
-OR (cannot have both)
-
-- Namespace Exclude
 ```
 
 ## Kinesis Firehose stream to Honeycomb
@@ -146,4 +132,26 @@ This stack supports integrating RDS logs from Cloudwatch to a Kinesis Firehose t
 
 
 - S3 Failure Bucket Arn: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+```
+
+## Logs from a bucket
+
+### [Click here](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=logs-from-s3&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/s3-logfile.yml)
+to launch the AWS Cloudformation Console to create the integration stack.
+
+
+This stack supports sending logs flowing to a S3 bucket to Honeycomb via lambdas.
+
+**Required inputs:**
+```
+- Stack Name
+
+
+- Honeycomb API Key: Your Honeycomb Team's API key.
+
+
+- Honeycomb Dataset: The target Honeycomb dataset for the Stream to publish to.
+
+
+- S3 Bucket Arn: The full ARN of the bucket storing the logs..
 ```
