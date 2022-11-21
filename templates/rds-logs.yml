@@ -16,6 +16,7 @@ Metadata:
       - Label:
           default: Optional Parameters
         Parameters:
+          - Name
           - HoneycombAPIHost
           - HttpBufferingInterval
           - HttpBufferingSize
@@ -49,6 +50,12 @@ Parameters:
   HoneycombDataset:
     Type: String
     Description: The target Honeycomb dataset for the Stream to publish to.
+  Name:
+    Type: String
+    Default: honeycomb-rdsstream
+    Description: The name of the Kinesis Firehose Stream.
+    MinLength: 1
+    MaxLength: 64
   HoneycombAPIHost:
     Type: String
     Default: https://api.honeycomb.io
@@ -144,6 +151,7 @@ Resources:
     Properties:
       TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml
       Parameters:
+        Name: !Ref Name
         HoneycombAPIKey: !Ref HoneycombAPIKey
         HoneycombDataset: !Ref HoneycombDataset
         S3FailureBucketArn: !Ref S3FailureBucketArn
@@ -182,7 +190,7 @@ Resources:
     Type: AWS::IAM::Policy
     Condition: EnableLambdaTransform
     Properties:
-      PolicyName: !Sub "honeycomb-lambda-transform-${AWS::StackName}"
+      PolicyName: !Sub "hnystream-transform-${AWS::StackName}"
       Roles:
         - Ref: TransformLambdaRole
       PolicyDocument:

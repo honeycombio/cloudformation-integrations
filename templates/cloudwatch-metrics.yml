@@ -110,7 +110,7 @@ Resources:
             Action:
               - "sts:AssumeRole"
       Policies:
-        - PolicyName: !Sub "honeycomb-stream-policy-${AWS::StackName}"
+        - PolicyName: !Sub "hnystream-${AWS::StackName}"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
