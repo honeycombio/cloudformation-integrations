@@ -16,6 +16,12 @@ Metadata:
           - EnableCloudWatchMetrics
           - CloudWatchMetricsDataset
           - CloudWatchLogsDataset
+          - LogGroupName
+          - LogGroupName1
+          - LogGroupName2
+          - LogGroupName3
+          - LogGroupName4
+          - LogGroupName5
           - RDSLogGroupName
           - RDSLogGroupName1
           - RDSLogGroupName2
@@ -48,6 +54,36 @@ Parameters:
     Type: String
     Default: cloudwatch-metrics
     Description: The name of the Honeycomb Dataset to publish CloudWatch Metrics to.
+  LogGroupName:
+    Type: String
+    Description: The name of the CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
+    Default: ""
+    MaxLength: 512
+  LogGroupName1:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName2:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName3:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName4:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
+  LogGroupName5:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch Log Group to publish.
+    MaxLength: 512
   RDSLogsDataset:
     Type: String
     Default: rds-logs
@@ -100,6 +136,7 @@ Parameters:
     MaxLength: 512
 
 Conditions:
+  CloudWatchLogsEnabled: !Not [!Equals [!Ref LogGroupName, ""]]
   MetricStreamEnabled: !Equals [!Ref EnableCloudWatchMetrics, "true"]
   RDSLogsEnabled: !Not [!Equals [!Ref RDSDBEngineType, ""]]
 
@@ -120,16 +157,22 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: "aws:kms"
-  HoneycombStream:
+  LogStream:
     Type: AWS::CloudFormation::Stack
+    Condition: CloudWatchLogsEnabled
     Properties:
-      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml
       Parameters:
-        Name: !Sub "honeycomb-${AWS::StackName}"
         HoneycombAPIKey: !Ref HoneycombAPIKey
         HoneycombAPIHost: !Ref HoneycombAPIHost
         HoneycombDataset: !Ref CloudWatchLogsDataset
         S3FailureBucketArn: !GetAtt StreamFailureBucket.Arn
+        LogGroupName: !Ref LogGroupName
+        LogGroupName1: !Ref LogGroupName1
+        LogGroupName2: !Ref LogGroupName2
+        LogGroupName3: !Ref LogGroupName3
+        LogGroupName4: !Ref LogGroupName4
+        LogGroupName5: !Ref LogGroupName5
   MetricsStream:
     Type: AWS::CloudFormation::Stack
     Condition: MetricStreamEnabled
@@ -163,8 +206,9 @@ Outputs:
     Description: The ARN of the S3 Bucket created to hold stream delivery failures.
     Value: !GetAtt StreamFailureBucket.Arn
   KinesisStreamArn:
-    Description: The ARN of the Kinesis Firehose Stream sending data to Honeycomb
-    Value: !GetAtt HoneycombStream.Outputs.KinesisDeliveryStreamArn
+    Condition: CloudWatchLogsEnabled
+    Description: The ARN of the Kinesis Firehose Stream sending CloudWatch Logs to Honeycomb
+    Value: !GetAtt LogStream.Outputs.KinesisDeliveryStreamArn
   MetricsStreamArn:
     Condition: MetricStreamEnabled
     Description: The ARN of the Metrics Stream.
