@@ -16,6 +16,12 @@ Metadata:
           - EnableCloudWatchMetrics
           - CloudWatchMetricsDataset
           - CloudWatchLogsDataset
+          - RDSLogGroupName
+          - RDSLogGroupName1
+          - RDSLogGroupName2
+          - RDSLogGroupName3
+          - RDSLogGroupName4
+          - RDSLogGroupName5
 
 Parameters:
   HoneycombAPIKey:
@@ -26,6 +32,7 @@ Parameters:
     Type: String
     Default: "false"
     Description: Honeycomb Enterprise customers can enable CloudWatch Metrics collection by setting this to true.
+    ConstraintDescription: Requires a Honeycomb Enterprise plan.
     AllowedValues:
       - "true"
       - "false"
@@ -41,9 +48,67 @@ Parameters:
     Type: String
     Default: cloudwatch-metrics
     Description: The name of the Honeycomb Dataset to publish CloudWatch Metrics to.
+  RDSLogsDataset:
+    Type: String
+    Default: rds-logs
+    Description: The nme of the Honeycomb Dataset to publish RDS logs to.
+  RDSDBEngineType:
+    Type: String
+    Description: The Engine type of your RDS database.
+    Default: ""
+    AllowedValues:
+      - ""
+      - aurora-mysql
+      - aurora-postgresql
+      - mariabdb
+      - sqlserver
+      - mysql
+      - oracle
+      - postgresql
+  RDSLogGroupName:
+    Type: String
+    Default: ""
+    Description: >-
+      The name of the CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
+      e.g. "/aws/rds/instance/mydatabase/slowquery"
+    ConstraintDescription: Must be set when RDSDBEngine type is set.
+    MaxLength: 512
+  RDSLogGroupName1:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch RDS Log Group to publish.
+    MaxLength: 512
+  RDSLogGroupName2:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch RDS Log Group to publish.
+    MaxLength: 512
+  RDSLogGroupName3:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch RDS Log Group to publish.
+    MaxLength: 512
+  RDSLogGroupName4:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch RDS Log Group to publish.
+    MaxLength: 512
+  RDSLogGroupName5:
+    Type: String
+    Default: ""
+    Description: The name of an additional CloudWatch RDS Log Group to publish.
+    MaxLength: 512
 
 Conditions:
   MetricStreamEnabled: !Equals [!Ref EnableCloudWatchMetrics, "true"]
+  RDSLogsEnabled: !Not [!Equals [!Ref RDSDBEngineType, ""]]
+
+Rules:
+  RDSLogGroupNameSetWithDBEngine:
+    RuleCondition: !Not [!Equals [!Ref RDSDBEngineType, ""]]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref RDSLogGroupName, ""]]
+        AssertDescription: "At least one RDSLogGroup must be provided when enabling the RDS Logs integration."
 
 Resources:
   StreamFailureBucket:
@@ -51,6 +116,10 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: !Sub "honeycomb-stream-failures-${AWS::StackName}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: "aws:kms"
   HoneycombStream:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -71,6 +140,23 @@ Resources:
         HoneycombAPIHost: !Ref HoneycombAPIHost
         HoneycombDataset: !Ref CloudWatchMetricsDataset
         S3FailureBucketArn: !GetAtt StreamFailureBucket.Arn
+  RDSLogs:
+    Type: AWS::CloudFormation::Stack
+    Condition: RDSLogsEnabled
+    Properties:
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/rds-logs.yml
+      Parameters:
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HoneycombDataset: !Ref RDSLogsDataset
+        S3FailureBucketArn: !GetAtt StreamFailureBucket.Arn
+        DBEngineType: !Ref RDSDBEngineType
+        LogGroupName: !Ref RDSLogGroupName
+        LogGroupName1: !Ref RDSLogGroupName1
+        LogGroupName2: !Ref RDSLogGroupName2
+        LogGroupName3: !Ref RDSLogGroupName3
+        LogGroupName4: !Ref RDSLogGroupName4
+        LogGroupName5: !Ref RDSLogGroupName5
 
 Outputs:
   FailureBucketArn:
@@ -87,3 +173,7 @@ Outputs:
     Condition: MetricStreamEnabled
     Description: The ARN of the IAM Role created for the Metrics Stream
     Value: !GetAtt MetricsStream.Outputs.MetricStreamIAMRoleArn
+  RDSLogsKinesisStreamArn:
+    Condition: RDSLogsEnabled
+    Description: The ARN of the Kinesis Firehose Stream sending RDS logs to Honeycomb.
+    Value: !GetAtt RDSLogs.Outputs.KinesisDeliveryStreamArn
