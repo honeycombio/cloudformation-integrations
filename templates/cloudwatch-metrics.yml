@@ -17,6 +17,7 @@ Metadata:
           - HoneycombAPIHost
           - HttpBufferingInterval
           - HttpBufferingSize
+          - KinesisFirehoseArn
           - S3BackupMode
           - S3BufferingInterval
           - S3BufferingSize
@@ -45,6 +46,13 @@ Parameters:
     Description: The Kinesis Firehose http buffer size, in MiB.
     MinValue: 1
     MaxValue: 128
+  KinesisFirehoseArn:
+    Type: String
+    Default: ""
+    Description: >-
+      By default, a Kinesis Firehose Delivery Stream will be created.
+      You can override this behaviour by providing an Arn of an existing Firehose Delivery Stream.
+    ConstraintDescription: The Arn of an existing Kinesis Firehose Delivery Stream.
   S3BackupMode:
     Type: String
     Default: FailedDataOnly
@@ -69,9 +77,13 @@ Parameters:
     MinValue: 1
     MaxValue: 128
 
+Conditions:
+  CreateKinesisFirehose: !Equals [!Ref KinesisFirehoseArn, ""]
+
 Resources:
   KinesisToHoneycombStack:
     Type: AWS::CloudFormation::Stack
+    Condition: CreateKinesisFirehose
     Properties:
       TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml
       Parameters:
@@ -106,20 +118,28 @@ Resources:
                 Action:
                   - "firehose:PutRecord"
                   - "firehose:PutRecordBatch"
-                Resource:
+                Resource: !If
+                  - CreateKinesisFirehose
                   - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+                  - Ref: KinesisFirehoseArn
   HoneycombCWLStream:
     Type: AWS::CloudWatch::MetricStream
     Properties:
       Name: !Sub "honeycomb-metric-stream-${AWS::StackName}"
       OutputFormat: opentelemetry0.7
-      FirehoseArn: !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
       RoleArn: !GetAtt HoneycombMetricStreamRole.Arn
+      FirehoseArn: !If
+        - CreateKinesisFirehose
+        - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+        - Ref: KinesisFirehoseArn
 
 Outputs:
   KinesisDeliveryStreamArn:
     Description: The ARN of the Firehose Delivery Stream
-    Value: !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+    Value: !If
+      - CreateKinesisFirehose
+      - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
+      - Ref: KinesisFirehoseArn
   MetricStreamArn:
     Description: The ARN of the Metric Stream
     Value: !GetAtt HoneycombCWLStream.Arn
