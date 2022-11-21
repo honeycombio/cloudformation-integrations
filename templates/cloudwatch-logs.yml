@@ -132,6 +132,7 @@ Parameters:
     MaxValue: 128
   TransformLambdaArn:
     Type: String
+    Default: ""
     Description: The ARN of the Lambda to use on the Kinesis Firehose to preprocess events.
     ConstraintDescription: The ARN of a Lambda.
 
