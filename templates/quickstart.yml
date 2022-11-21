@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Honeycomb AWS Integration
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Required Parameters
+        Parameters:
+          - HoneycombAPIKey
+      - Label:
+          default: Optional Parameters
+        Parameters:
+          - HoneycombAPIHost
+          - EnableCloudWatchMetrics
+          - CloudWatchMetricsDataset
+          - CloudWatchLogsDataset
+
+Parameters:
+  HoneycombAPIKey:
+    Type: String
+    NoEcho: true
+    Description: Your Honeycomb Team's API key.
+  EnableCloudWatchMetrics:
+    Type: String
+    Default: "false"
+    Description: Honeycomb Enterprise customers can enable CloudWatch Metrics collection by setting this to true.
+    AllowedValues:
+      - "true"
+      - "false"
+  HoneycombAPIHost:
+    Type: String
+    Default: https://api.honeycomb.io
+    Description: Override the default Honeycomb API host.
+  CloudWatchLogsDataset:
+    Type: String
+    Default: cloudwatch-logs
+    Description: The name of the Honeycomb Dataset to publish CloudWatch Logs to.
+  CloudWatchMetricsDataset:
+    Type: String
+    Default: cloudwatch-metrics
+    Description: The name of the Honeycomb Dataset to publish CloudWatch Metrics to.
+
+Conditions:
+  MetricStreamEnabled: !Equals [!Ref EnableCloudWatchMetrics, "true"]
+
+Resources:
+  StreamFailureBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub "honeycomb-stream-failures-${AWS::StackName}"
+  HoneycombStream:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml
+      Parameters:
+        Name: !Sub "honeycomb-${AWS::StackName}"
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HoneycombDataset: !Ref CloudWatchLogsDataset
+        S3FailureBucketArn: !GetAtt StreamFailureBucket.Arn
+  MetricsStream:
+    Type: AWS::CloudFormation::Stack
+    Condition: MetricStreamEnabled
+    Properties:
+      TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-metrics.yml
+      Parameters:
+        HoneycombAPIKey: !Ref HoneycombAPIKey
+        HoneycombAPIHost: !Ref HoneycombAPIHost
+        HoneycombDataset: !Ref CloudWatchMetricsDataset
+        S3FailureBucketArn: !GetAtt StreamFailureBucket.Arn
+
+Outputs:
+  FailureBucketArn:
+    Description: The ARN of the S3 Bucket created to hold stream delivery failures.
+    Value: !GetAtt StreamFailureBucket.Arn
+  KinesisStreamArn:
+    Description: The ARN of the Kinesis Firehose Stream sending data to Honeycomb
+    Value: !GetAtt HoneycombStream.Outputs.KinesisDeliveryStreamArn
+  MetricsStreamArn:
+    Condition: MetricStreamEnabled
+    Description: The ARN of the Metrics Stream.
+    Value: !GetAtt MetricsStream.Outputs.MetricStreamArn
+  MetricsStreamIAMRoleArn:
+    Condition: MetricStreamEnabled
+    Description: The ARN of the IAM Role created for the Metrics Stream
+    Value: !GetAtt MetricsStream.Outputs.MetricStreamIAMRoleArn
