@@ -144,7 +144,7 @@ Resources:
             Action:
               - "sts:AssumeRole"
       Policies:
-        - PolicyName: !Sub "honeycomb-s3-handler-policy-${AWS::StackName}"
+        - PolicyName: !Sub "hny-s3-handler-${AWS::StackName}"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -170,7 +170,7 @@ Resources:
     Type: "AWS::IAM::Policy"
     Condition: EncryptionEnabled
     Properties:
-      PolicyName: !Sub "kmsdecrypt-policy-${AWS::StackName}"
+      PolicyName: !Sub "hny-s3-handler-decrypt-${AWS::StackName}"
       Roles:
         - Ref: LambdaIAMRole
       PolicyDocument:

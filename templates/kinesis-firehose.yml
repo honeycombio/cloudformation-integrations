@@ -144,7 +144,7 @@ Resources:
   FirehoseS3Policy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: !Sub "honeycomb-firehose-s3-policy-${AWS::StackName}"
+      PolicyName: !Sub "hnystream-s3-${AWS::StackName}"
       Roles:
         - Ref: FirehoseS3Role
       PolicyDocument:
@@ -167,7 +167,7 @@ Resources:
     Type: AWS::IAM::Policy
     Condition: EnableLambdaTransform
     Properties:
-      PolicyName: !Sub "honeycomb-firehose-transform-policy-${AWS::StackName}"
+      PolicyName: !Sub "hnystream-transform-${AWS::StackName}"
       Roles:
         - Ref: FirehoseS3Role
       PolicyDocument:

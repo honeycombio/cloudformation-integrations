@@ -15,6 +15,7 @@ Metadata:
       - Label:
           default: Optional Parameters
         Parameters:
+          - Name
           - HoneycombAPIHost
           - HttpBufferingInterval
           - HttpBufferingSize
@@ -42,6 +43,12 @@ Parameters:
     Type: String
     Default: https://api.honeycomb.io
     Description: Optional. Override the default Honeycomb API host.
+  Name:
+    Type: String
+    Default: honeycomb-logstream
+    Description: The name of the Kinesis Firehose Stream.
+    MinLength: 1
+    MaxLength: 64
   HttpBufferingInterval:
     Type: Number
     Default: 60
@@ -143,7 +150,7 @@ Resources:
     Properties:
       TemplateURL: https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml
       Parameters:
-        Name: !Sub "${AWS::StackName}"
+        Name: !Ref Name
         HoneycombAPIKey: !Ref HoneycombAPIKey
         HoneycombDataset: !Ref HoneycombDataset
         S3FailureBucketArn: !Ref S3FailureBucketArn
@@ -171,7 +178,7 @@ Resources:
                 aws:SourceArn:
                   - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
       Policies:
-        - PolicyName: !Sub "honeycomb-logstream-policy-${AWS::StackName}"
+        - PolicyName: !Sub "hnystream-${AWS::StackName}"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
