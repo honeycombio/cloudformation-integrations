@@ -60,7 +60,7 @@ Parameters:
       - ""
       - aurora-mysql
       - aurora-postgresql
-      - mariabdb
+      - mariadb
       - sqlserver
       - mysql
       - oracle
