@@ -32,7 +32,7 @@ If on initial set up the stack create fails - we recommend a complete delete and
 
 ## Quick Start
 
-This 'Quick Stack' template allows the configuration of multiple integrations from a single CloudFormation Template.
+This 'Quick Start' template allows the configuration of multiple integrations from a single CloudFormation Template.
 
 <a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/quickstart.yml&stackName=Honeycomb-Integration" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
 
