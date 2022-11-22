@@ -6,15 +6,42 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Required Parameters
+          Default: Required Parameters
         Parameters:
           - HoneycombAPIKey
       - Label:
-          default: Optional Parameters
+          Default: Optional Parameters
         Parameters:
           - HoneycombAPIHost
+      - Label:
+          Default: "Optional: CloudWatch Metrics"
+        Parameters:
           - EnableCloudWatchMetrics
           - CloudWatchMetricsDataset
+      - Label:
+          Default: "Optional: S3 Log Parsing"
+        Parameters:
+          - S3LogsDataset
+          - S3LogsParserType
+          - S3LogsBucketArn
+          - S3LogsSampleRate
+          - S3LogsEnvironment
+          - S3LogsFilterPrefix
+          - S3LogsFilterSuffix
+      - Label:
+          Default: "Optional: RDS Logs"
+        Parameters:
+          - RDSLogsDataset
+          - RDSDBEngineType
+          - RDSLogGroupName
+          - RDSLogGroupName1
+          - RDSLogGroupName2
+          - RDSLogGroupName3
+          - RDSLogGroupName4
+          - RDSLogGroupName5
+      - Label:
+          Default: "Optional: CloudWatch Logs"
+        Parameters:
           - CloudWatchLogsDataset
           - LogGroupName
           - LogGroupName1
@@ -22,18 +49,6 @@ Metadata:
           - LogGroupName3
           - LogGroupName4
           - LogGroupName5
-          - RDSLogGroupName
-          - RDSLogGroupName1
-          - RDSLogGroupName2
-          - RDSLogGroupName3
-          - RDSLogGroupName4
-          - RDSLogGroupName5
-          - S3LogsDataset
-          - S3LogsBucketArn
-          - S3LogsParserType
-          - S3LogsEnvironment
-          - S3LogsFilterPrefix
-          - S3LogsFilterSuffix
 
 Parameters:
   HoneycombAPIKey:
@@ -163,7 +178,7 @@ Parameters:
       - "keyval"
   S3LogsEnvironment:
     Type: String
-    Description: Name of environment. This will be included in log events sent to Honeycomb.
+    Description: The name of the environment. This will be included in log events sent to Honeycomb.
     Default: ""
   S3LogsFilterPrefix:
     Type: String

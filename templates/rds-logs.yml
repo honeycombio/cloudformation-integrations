@@ -6,7 +6,7 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Required Parameters
+          Default: Required Parameters
         Parameters:
           - DBEngineType
           - HoneycombAPIKey
@@ -14,7 +14,7 @@ Metadata:
           - LogGroupName
           - S3FailureBucketArn
       - Label:
-          default: Optional Parameters
+          Default: Optional Parameters
         Parameters:
           - Name
           - HoneycombAPIHost

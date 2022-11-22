@@ -6,14 +6,14 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Required Parameters
+          Default: Required Parameters
         Parameters:
           - HoneycombAPIKey
           - HoneycombDataset
           - ParserType
           - S3BucketArn
       - Label:
-          default: Optional Parameters
+          Default: Optional Parameters
         Parameters:
           - HoneycombAPIHost
           - Environment
