@@ -22,12 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Publish Templates
+      - name: Publish Templates - PRs
         id: publish_prs
         run: make publish-templates folder=prs version=$PR_NUMBER
         if: github.event_name == 'pull_request'
 
-      - name: Publish Templates
+      - name: Sync Templates - Latest
         id: publish_latest
         run: make publish-templates folder=latest
         if: github.event_name == 'push'
