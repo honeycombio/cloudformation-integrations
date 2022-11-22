@@ -2,8 +2,9 @@ name: Publish Cloudformation Templates
 
 on:
   workflow_dispatch:
-  release:
-    types: [released]
+  push:
+    branches:
+      - main
   pull_request:
     paths-ignore:
       - README.md
@@ -29,4 +30,4 @@ jobs:
       - name: Publish Templates
         id: publish_latest
         run: make publish-templates folder=latest
-        if: github.event_name == 'release'
+        if: github.event_name == 'push'
