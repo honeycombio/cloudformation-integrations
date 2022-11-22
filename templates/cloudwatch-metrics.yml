@@ -11,6 +11,14 @@ Metadata:
           - HoneycombAPIKey
           - S3FailureBucketArn
       - Label:
+          Default: "Optional: Metric Filtering"
+        Parameters:
+          - MetricFilterMethod
+          - FilterNamespace
+          - FilterNamespace1
+          - FilterNamespace2
+          - FilterNamespace3
+      - Label:
           Default: Optional Parameters
         Parameters:
           - HoneycombAPIHost
@@ -21,14 +29,6 @@ Metadata:
           - S3BackupMode
           - S3BufferingInterval
           - S3BufferingSize
-      - Label:
-          Default: "Optional: Metric Filtering"
-        Parameters:
-          - MetricFilterMethod
-          - FilterNamespace
-          - FilterNamespace1
-          - FilterNamespace2
-          - FilterNamespace3
 
 Parameters:
   HoneycombAPIKey:
