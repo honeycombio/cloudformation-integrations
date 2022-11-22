@@ -6,15 +6,23 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Required Parameters
+          Default: Required Parameters
         Parameters:
           - HoneycombAPIKey
-          - HoneycombDataset
           - S3FailureBucketArn
       - Label:
-          default: Optional Parameters
+          Default: "Optional: Metric Filtering"
+        Parameters:
+          - MetricFilterMethod
+          - FilterNamespace
+          - FilterNamespace1
+          - FilterNamespace2
+          - FilterNamespace3
+      - Label:
+          Default: Optional Parameters
         Parameters:
           - HoneycombAPIHost
+          - HoneycombDataset
           - HttpBufferingInterval
           - HttpBufferingSize
           - KinesisFirehoseArn
@@ -29,11 +37,38 @@ Parameters:
     Description: Your Honeycomb Team's API key.
   HoneycombDataset:
     Type: String
+    Default: cloudwatch-metrics
     Description: The target Honeycomb dataset for the Stream to publish to.
   HoneycombAPIHost:
     Type: String
     Default: https://api.honeycomb.io
     Description: Optional. Override the default Honeycomb API host.
+  MetricFilterMethod:
+    Type: String
+    Default: Include
+    Description: >-
+      The stream can be filtered by namespace (e.g. 'AWS/Lambda', 'AWS/EC2').
+      Select "Include" for an inclusion filter or "Exclude" for an exclusion filter.
+      Set up to four namespaces for the filter to target below.
+    AllowedValues:
+      - Include
+      - Exclude
+  FilterNamespace:
+    Type: String
+    Default: ""
+    Description: A namespace to use for filtering metrics from the stream. Leave blank if you do not need to filter by namespace.
+  FilterNamespace1:
+    Type: String
+    Default: ""
+    Description: A namespace to use for filtering metrics from the stream. Leave blank if you do not need to filter by namespace.
+  FilterNamespace2:
+    Type: String
+    Default: ""
+    Description: A namespace to use for filtering metrics from the stream. Leave blank if you do not need to filter by namespace.
+  FilterNamespace3:
+    Type: String
+    Default: ""
+    Description: A namespace to use for filtering metrics from the stream. Leave blank if you do not need to filter by namespace.
   HttpBufferingInterval:
     Type: Number
     Default: 60
@@ -79,6 +114,46 @@ Parameters:
 
 Conditions:
   CreateKinesisFirehose: !Equals [!Ref KinesisFirehoseArn, ""]
+  EnableIncludeNamespace:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace, ""]],
+      !Equals [!Ref MetricFilterMethod, "Include"],
+    ]
+  EnableIncludeNamespace1:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace1, ""]],
+      !Equals [!Ref MetricFilterMethod, "Include"],
+    ]
+  EnableIncludeNamespace2:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace2, ""]],
+      !Equals [!Ref MetricFilterMethod, "Include"],
+    ]
+  EnableIncludeNamespace3:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace3, ""]],
+      !Equals [!Ref MetricFilterMethod, "Include"],
+    ]
+  EnableExcludeNamespace:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace, ""]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
+    ]
+  EnableExcludeNamespace1:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace1, ""]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
+    ]
+  EnableExcludeNamespace2:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace2, ""]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
+    ]
+  EnableExcludeNamespace3:
+    !And [
+      !Not [!Equals [!Ref FilterNamespace3, ""]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
+    ]
 
 Resources:
   KinesisToHoneycombStack:
@@ -132,6 +207,40 @@ Resources:
         - CreateKinesisFirehose
         - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
         - Ref: KinesisFirehoseArn
+      IncludeFilters:
+        - !If
+          - EnableIncludeNamespace
+          - Namespace: !Ref FilterNamespace
+          - !Ref "AWS::NoValue"
+        - !If
+          - EnableIncludeNamespace1
+          - Namespace: !Ref FilterNamespace1
+          - !Ref "AWS::NoValue"
+        - !If
+          - EnableIncludeNamespace2
+          - Namespace: !Ref FilterNamespace2
+          - !Ref "AWS::NoValue"
+        - !If
+          - EnableIncludeNamespace3
+          - Namespace: !Ref FilterNamespace3
+          - !Ref "AWS::NoValue"
+      ExcludeFilters:
+        - !If
+          - EnableExcludeNamespace
+          - Namespace: !Ref FilterNamespace
+          - !Ref "AWS::NoValue"
+        - !If
+          - EnableExcludeNamespace1
+          - Namespace: !Ref FilterNamespace1
+          - !Ref "AWS::NoValue"
+        - !If
+          - EnableExcludeNamespace2
+          - Namespace: !Ref FilterNamespace2
+          - !Ref "AWS::NoValue"
+        - !If
+          - EnableExcludeNamespace3
+          - Namespace: !Ref FilterNamespace3
+          - !Ref "AWS::NoValue"
 
 Outputs:
   KinesisDeliveryStreamArn:
