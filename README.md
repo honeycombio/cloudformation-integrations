@@ -46,7 +46,7 @@ This 'Quick Stack' template allows the configuration of multiple integrations fr
 
 This template supports integrating with up to 6 Cloudwatch Log Groups and shipping them to a Honeycomb dataset.
 
-<a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new&templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml&stackName=Honeycomb-Logs" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
+<a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-logs.yml&stackName=Honeycomb-Logs" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
 
 ### Required Inputs
 
