@@ -14,21 +14,21 @@ Note: [Terraform modules](https://github.com/honeycombio/terraform-aws-integrati
 ## Usage
 
 A [quick start template](README.md#quick-start) is available to offer an easy path to integrating your AWS environments with Honeycomb.
-It makes use of the of the per-integration templates below to offer confiuguring many of the integrations in a single CloudFormation stack.
+It makes use of the of the per-integration templates below to offer configuring many of the integrations in a single CloudFormation stack.
 
 The quick start template may be suitable for many production purposes, but we encourage you to use per-integration templates in a way which suits your AWS environment.
 
 ### Supported Integrations
 
 * [CloudWatch Logs](README.md#cloudwatch-logs)
-  * [RDS Cloudwatch Logs](README.md#rds-logs)
+* [RDS Cloudwatch Logs](README.md#rds-logs)
 * [CloudWatch Metrics](README.md#cloudwatch-metrics)
 * [Logs from a S3 bucket](README.md#logs-from-a-s3-bucket)
 * [Kinesis Firehose Stream to Honeycomb](README.md#kinesis-firehose-stream-to-honeycomb)
 
 ### Caveats & Troubleshooting
 
-If on initial set up the stack create fails - we recommend a complete delete and recreate to ensure all dependencies properly get created.
+If on initial set up the stack create fails we recommend a complete delete and recreate to ensure all dependencies properly get created.
 
 ## Quick Start
 
@@ -57,7 +57,7 @@ This template supports integrating with up to 6 Cloudwatch Log Groups and shippi
 
 ## Cloudwatch Metrics
 
-This template supports integrating with all metrics flowing to Cloudwatch Metrics.
+This template supports integrating with all metrics flowing to Cloudwatch Metrics and shipping them to a Honeycomb.
 
 <a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/cloudwatch-metrics.yml&stackName=Honeycomb-CloudMetrics" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
 
@@ -68,7 +68,7 @@ This template supports integrating with all metrics flowing to Cloudwatch Metric
 
 ## Kinesis Firehose Stream to Honeycomb
 
-This template creates a Kinesis Firehose Stteam that streams data received to Honeycomb.
+This template creates a Kinesis Firehose Stream that streams data received to Honeycomb.
 
 <a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/kinesis-firehose.yml&stackName=Honeycomb-Kinesis" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
 
@@ -103,7 +103,7 @@ This template supports sending logs flowing to a S3 bucket to Honeycomb.
 ### Required Inputs
 
 - `HoneycombAPIKey`: Your Honeycomb Team's API Key.
-- `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+- `HoneycombDataset`: The target Honeycomb dataset for to publish to.
 - `ParserType`: The type of log file to parse. One of `alb`, `elb`, `cloudfront`, `keyval`, `json`, `s3-access`, or `vpc-flow`.
 - `S3BucketArn`: The ARN of the S3 Bucket storing the logs.
 
