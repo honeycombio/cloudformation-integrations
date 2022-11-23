@@ -39,7 +39,11 @@ This 'Quick Start' template allows the configuration of multiple integrations fr
 
 Enter a value for the required input in the UI, or if using the CLI or API, ensure the inclusion of the required input and its value.
 
+<<<<<<< HEAD
 - `HoneycombAPIKey`: : Your Honeycomb Team's API Key.
+=======
+* `HoneycombAPIKey`: : Your Honeycomb Team's API Key.
+>>>>>>> 247a6c2fe43b1d598304428bf04ee7c074aa4331
 
 *Note*: All other Parameters are optional, but if no additional parameters are provided, only a S3 Bucket will be created.
 
@@ -53,10 +57,17 @@ This template supports integrating with up to six Cloudwatch Log Groups and ship
 
 Enter a value for each required input in the UI, or if using the CLI or API, ensure the inclusion of each required input and its value.
 
+<<<<<<< HEAD
 - `HoneycombAPIKey`: Your Honeycomb Team's API Key.
 - `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
 - `LogGroupName`: A CloudWatch Log Group name. Additional Log Groups can be added with the `LogGroupNameX` parameters.
 - `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+=======
+* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+* `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+* `LogGroupName`: A CloudWatch Log Group name. Additional Log Groups can be added with the `LogGroupNameX` parameters.
+* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+>>>>>>> 247a6c2fe43b1d598304428bf04ee7c074aa4331
 
 ## Cloudwatch Metrics
 
@@ -68,8 +79,13 @@ This template supports integrating with all metrics flowing to Cloudwatch Metric
 
 Enter a value for each required input in the UI, or if using the CLI or API, ensure the inclusion of each required input and its value.
 
+<<<<<<< HEAD
 - `HoneycombAPIKey`: Your Honeycomb Team's API Key.
 - `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+=======
+* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+>>>>>>> 247a6c2fe43b1d598304428bf04ee7c074aa4331
 
 ## Kinesis Firehose Stream to Honeycomb
 
@@ -81,10 +97,17 @@ This template creates a Kinesis Firehose Stream that streams data received to Ho
 
 Enter a value for each required input in the UI, or if using the CLI or API, ensure the inclusion of each required input and its value.
 
+<<<<<<< HEAD
 - `Name`: A Name for this Kinesis Firehose. Must be unique in this Region.
 - `HoneycombAPIKey`: Your Honeycomb Team's API Key.
 - `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
 - `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+=======
+* `Name`: A Name for this Kinesis Firehose. Must be unique in this Region.
+* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+* `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+>>>>>>> 247a6c2fe43b1d598304428bf04ee7c074aa4331
 
 ### RDS Cloudwatch Logs
 
@@ -96,11 +119,19 @@ This template streams RDS logs from Cloudwatch to a Kinesis Firehose that includ
 
 Enter a value for each required input in the UI, or if using the CLI or API, ensure the inclusion of each required input and its value.
 
+<<<<<<< HEAD
 - `HoneycombAPIKey`: Your Honeycomb Team's API Key.
 - `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
 - `DBEngineType`: The Engine type of your RDS database. One of `aurora-mysql`, `aurora-postgresql` `mariadb`, `sqlserver`,`mysql`, `oracle`, or `postgresql`.
 - `LogGroupName`: A CloudWatch Log Group name for RDS logs. Additional Log Groups can be added with the `LogGroupNameX` parameters.
 - `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+=======
+* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+* `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+* `DBEngineType`: The Engine type of your RDS database. One of `aurora-mysql`, `aurora-postgresql` `mariadb`, `sqlserver`,`mysql`, `oracle`, or `postgresql`.
+* `LogGroupName`: A CloudWatch Log Group name for RDS logs. Additional Log Groups can be added with the `LogGroupNameX` parameters.
+* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+>>>>>>> 247a6c2fe43b1d598304428bf04ee7c074aa4331
 
 ## Logs from a S3 bucket
 
@@ -112,7 +143,14 @@ This template supports sending logs flowing to a S3 bucket to Honeycomb.
 
 Enter a value for each required input in the UI, or if using the CLI or API, ensure the inclusion of each required input and its value.
 
+<<<<<<< HEAD
 - `HoneycombAPIKey`: Your Honeycomb Team's API Key.
 - `HoneycombDataset`: The target Honeycomb dataset for to publish to.
 - `ParserType`: The type of log file to parse. Choose one of `alb`, `elb`, `cloudfront`, `keyval`, `json`, `s3-access`, or `vpc-flow`.
 - `S3BucketArn`: The ARN of the S3 Bucket storing the logs.
+=======
+* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+* `HoneycombDataset`: The target Honeycomb dataset for to publish to.
+* `ParserType`: The type of log file to parse. Choose one of `alb`, `elb`, `cloudfront`, `keyval`, `json`, `s3-access`, or `vpc-flow`.
+* `S3BucketArn`: The ARN of the S3 Bucket storing the logs.
+>>>>>>> 247a6c2fe43b1d598304428bf04ee7c074aa4331
