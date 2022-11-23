@@ -100,7 +100,7 @@ This template supports sending logs flowing to a S3 bucket to Honeycomb.
 
 ### Required Inputs
 
-* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
-* `HoneycombDataset`: The target Honeycomb dataset for to publish to.
-* `ParserType`: The type of log file to parse. Choose one of `alb`, `elb`, `cloudfront`, `keyval`, `json`, `s3-access`, or `vpc-flow`.
-* `S3BucketArn`: The ARN of the S3 Bucket storing the logs.
+- `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+- `HoneycombDataset`: The target Honeycomb dataset for to publish to.
+- `ParserType`: The type of log file to parse. Choose one of `alb`, `elb`, `cloudfront`, `keyval`, `json`, `s3-access`, or `vpc-flow`.
+- `S3BucketArn`: The ARN of the S3 Bucket storing the logs.
