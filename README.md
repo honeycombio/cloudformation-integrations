@@ -27,7 +27,7 @@ The quick start template may be suitable for many production purposes, but we en
 
 ### Caveats & Troubleshooting
 
-If the stack create fails during initial set up,  we recommend a complete delete and re-create to ensure the proper creation of all dependencies.
+If the stack create fails during its initial set up, we recommend a complete deletion and re-creation to ensure the proper creation of all dependencies.
 
 ## Quick Start
 
