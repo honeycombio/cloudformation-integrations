@@ -15,7 +15,7 @@ Note: [Terraform modules](https://github.com/honeycombio/terraform-aws-integrati
 A [quick start template](README.md#quick-start) offers a streamlined path to integrating your AWS environments with Honeycomb.
 The template uses the per-integration templates below to offer configuring many of the integrations in a single CloudFormation stack.
 
-The quick start template may be suitable for many production purposes, but we encourage you to use per-integration templates in a way which suits your AWS environment.
+The quick start template may be suitable for many production purposes, but we encourage you to use per-integration templates in a way that suits your AWS environment.
 
 ### Supported Integrations
 
