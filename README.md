@@ -73,10 +73,10 @@ This template creates a Kinesis Firehose Stream that streams data received to Ho
 
 ### Required Inputs
 
-* `Name`: A Name for this Kinesis Firehose. Must be unique in this Region.
-* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
-* `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
-* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+- `Name`: A Name for this Kinesis Firehose. Must be unique in this Region.
+- `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+- `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+- `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
 
 ### RDS Cloudwatch Logs
 
