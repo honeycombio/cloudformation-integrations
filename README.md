@@ -37,7 +37,7 @@ This 'Quick Start' template allows the configuration of multiple integrations fr
 
 ### Required Inputs
 
-* `HoneycombAPIKey`: : Your Honeycomb Team's API Key.
+- `HoneycombAPIKey`: : Your Honeycomb Team's API Key.
 
 *Note*: All other Parameters are optional, but if no additional parameters are provided, only a S3 Bucket will be created.
 
