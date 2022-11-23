@@ -62,8 +62,8 @@ This template supports integrating with all metrics flowing to Cloudwatch Metric
 
 ### Required Inputs
 
-* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
-* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+- `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+- `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
 
 ## Kinesis Firehose Stream to Honeycomb
 
