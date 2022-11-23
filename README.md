@@ -86,11 +86,11 @@ This template streams RDS logs from Cloudwatch to a Kinesis Firehose that includ
 
 ### Required Inputs
 
-* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
-* `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
-* `DBEngineType`: The Engine type of your RDS database. One of `aurora-mysql`, `aurora-postgresql` `mariadb`, `sqlserver`,`mysql`, `oracle`, or `postgresql`.
-* `LogGroupName`: A CloudWatch Log Group name for RDS logs. Additional Log Groups can be added with the `LogGroupNameX` parameters.
-* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+- `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+- `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+- `DBEngineType`: The Engine type of your RDS database. One of `aurora-mysql`, `aurora-postgresql` `mariadb`, `sqlserver`,`mysql`, `oracle`, or `postgresql`.
+- `LogGroupName`: A CloudWatch Log Group name for RDS logs. Additional Log Groups can be added with the `LogGroupNameX` parameters.
+- `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
 
 ## Logs from a S3 bucket
 
