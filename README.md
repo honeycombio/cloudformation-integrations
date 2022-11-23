@@ -49,10 +49,10 @@ This template supports integrating with up to six Cloudwatch Log Groups and ship
 
 ### Required Inputs
 
-* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
-* `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
-* `LogGroupName`: A CloudWatch Log Group name. Additional Log Groups can be added with the `LogGroupNameX` parameters.
-* `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
+- `HoneycombAPIKey`: Your Honeycomb Team's API Key.
+- `HoneycombDataset`: The target Honeycomb dataset for the Stream to publish to.
+- `LogGroupName`: A CloudWatch Log Group name. Additional Log Groups can be added with the `LogGroupNameX` parameters.
+- `S3FailureBucketArn`: The ARN of the S3 Bucket that will store any logs that failed to be sent to Honeycomb.
 
 ## Cloudwatch Metrics
 
