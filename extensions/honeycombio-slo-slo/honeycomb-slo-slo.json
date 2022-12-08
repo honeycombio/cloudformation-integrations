@@ -3,23 +3,6 @@
     "description": "An example resource schema demonstrating some basic constructs and validation rules.",
     "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-rpdk.git",
     "definitions": {
-        "InitechDateFormat": {
-            "$comment": "Use the `definitions` block to provide shared resource property schemas",
-            "type": "string",
-            "format": "date-time"
-        },
-        "Memo": {
-            "type": "object",
-            "properties": {
-                "Heading": {
-                    "type": "string"
-                },
-                "Body": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        },
         "Tag": {
             "description": "A key-value pair to associate with a resource.",
             "type": "object",
@@ -45,93 +28,78 @@
         }
     },
     "properties": {
-        "TPSCode": {
-            "description": "A TPS Code is automatically generated on creation and assigned as the unique identifier.",
+        "ID": {
+            "description": "The ID of the SLO",
+            "type": "string"
+        },
+        "Name": {
+            "description": "The name of the SLO",
             "type": "string",
-            "pattern": "^[A-Z]{3,5}[0-9]{8}-[0-9]{4}$"
+            "minLength": 1,
+            "maxLength": 120
         },
-        "Title": {
-            "description": "The title of the TPS report is a mandatory element.",
+        "Dataset": {
+            "description": "The dataset this SLO is created in. Must be the same dataset as the SLI.",
+            "type": "string"
+        },
+        "Description": {
+            "description": "A description of the SLO",
             "type": "string",
-            "minLength": 20,
-            "maxLength": 250
+            "minLength": 0,
+            "maxLength": 1023
         },
-        "CoverSheetIncluded": {
-            "description": "Required for all TPS Reports submitted after 2/19/1999",
-            "type": "boolean"
+        "TimePeriod": {
+            "description": "The time period, in days, over which your SLO will be evaluated.",
+            "type": "integer",
+            "minimum": 1
         },
-        "DueDate": {
-            "$ref": "#/definitions/InitechDateFormat"
+        "TargetPercentage": {
+            "description": "The percentage of qualified events that you expect to succeed during the time period.",
+            "type": "number",
+            "minimum": 1.00000,
+            "maximum": 99.9999
         },
-        "ApprovalDate": {
-            "$ref": "#/definitions/InitechDateFormat"
-        },
-        "Memo": {
-            "$ref": "#/definitions/Memo"
-        },
-        "SecondCopyOfMemo": {
-            "description": "In case you didn't get the first one.",
-            "$ref": "#/definitions/Memo"
-        },
-        "TestCode": {
-            "type": "string",
-            "enum": [
-                "NOT_STARTED",
-                "CANCELLED"
-            ]
-        },
-        "Authors": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
+        "SLI": {
+            "description": "The alias of the Derived Column that will be used as the SLI to indicate event success.",
+            "type": "string"
         },
         "Tags": {
-            "description": "An array of key-value pairs to apply to this resource.",
+            "description": "Tags associated with the SLO",
             "type": "array",
-            "uniqueItems": true,
-            "insertionOrder": false,
             "items": {
-                "$ref": "#/definitions/Tag"
+              "$ref": "#/definitions/Tag"
             }
         }
     },
     "additionalProperties": false,
     "required": [
-        "TestCode",
-        "Title"
+        "Dataset",
+        "Name",
+        "TargetPercentage",
+        "TimePeriod",
+        "SLI"
     ],
     "readOnlyProperties": [
-        "/properties/TPSCode"
+        "/properties/ID"
     ],
     "primaryIdentifier": [
-        "/properties/TPSCode"
+        "/properties/ID"
     ],
     "handlers": {
         "create": {
-            "permissions": [
-                "initech:CreateReport"
-            ]
+            "permissions": [""]
         },
         "read": {
-            "permissions": [
-                "initech:DescribeReport"
-            ]
+            "permissions": [""]
         },
         "update": {
-            "permissions": [
-                "initech:UpdateReport"
-            ]
+            "permissions": [""]
         },
         "delete": {
-            "permissions": [
-                "initech:DeleteReport"
-            ]
+            "permissions": [""]
         },
         "list": {
-            "permissions": [
-                "initech:ListReports"
-            ]
+            "permissions": [""]
         }
     }
 }
