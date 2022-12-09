@@ -1,6 +1,6 @@
 # Honeycomb::SLO::SLO
 
-An example resource schema demonstrating some basic constructs and validation rules.
+Honeycomb SLOs allows you to define and monitor Service Level Objectives (SLOs) for your organization.
 
 ## Syntax
 
@@ -17,8 +17,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
         "<a href="#description" title="Description">Description</a>" : <i>String</i>,
         "<a href="#timeperiod" title="TimePeriod">TimePeriod</a>" : <i>Integer</i>,
         "<a href="#targetpercentage" title="TargetPercentage">TargetPercentage</a>" : <i>Double</i>,
-        "<a href="#sli" title="SLI">SLI</a>" : <i>String</i>,
-        "<a href="#tags" title="Tags">Tags</a>" : <i>[ <a href="tag.md">Tag</a>, ... ]</i>
+        "<a href="#sli" title="SLI">SLI</a>" : <i>String</i>
     }
 }
 </pre>
@@ -34,15 +33,13 @@ Properties:
     <a href="#timeperiod" title="TimePeriod">TimePeriod</a>: <i>Integer</i>
     <a href="#targetpercentage" title="TargetPercentage">TargetPercentage</a>: <i>Double</i>
     <a href="#sli" title="SLI">SLI</a>: <i>String</i>
-    <a href="#tags" title="Tags">Tags</a>: <i>
-      - <a href="tag.md">Tag</a></i>
 </pre>
 
 ## Properties
 
 #### Name
 
-The name of the SLO
+The name of the SLO.
 
 _Required_: Yes
 
@@ -66,7 +63,7 @@ _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormati
 
 #### Description
 
-A description of the SLO
+A description of the SLO.
 
 _Required_: No
 
@@ -106,16 +103,6 @@ _Type_: String
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
-#### Tags
-
-Tags associated with the SLO
-
-_Required_: No
-
-_Type_: List of <a href="tag.md">Tag</a>
-
-_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
-
 ## Return Values
 
 ### Ref
@@ -130,5 +117,5 @@ For more information about using the `Fn::GetAtt` intrinsic function, see [Fn::G
 
 #### ID
 
-The ID of the SLO
+The ID of the SLO.
 

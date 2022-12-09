@@ -1,12 +1,8 @@
 {
-    "TPSCode": "...",
-    "Title": "...",
-    "CoverSheetIncluded": "...",
-    "DueDate": "...",
-    "ApprovalDate": "...",
-    "Memo": "...",
-    "SecondCopyOfMemo": "...",
-    "TestCode": "...",
-    "Authors": "...",
-    "Tags": "..."
+    "Name": "My Cloudy SLO",
+    "Dataset": "cfn-test",
+    "Description": "A meaningful description",
+    "TimePeriod": 30,
+    "TargetPercentage": 99.95,
+    "SLI": "sli.speedy_duration"
 }

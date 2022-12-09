@@ -2,7 +2,10 @@ module github.com/honeycombio/cloudformation-integrations/extensions/honeycombio
 
 go 1.19
 
-require github.com/aws-cloudformation/cloudformation-cli-go-plugin v1.0.3
+require (
+	github.com/aws-cloudformation/cloudformation-cli-go-plugin v1.0.4-0.20221031200735-03f4410147d7
+	github.com/honeycombio/terraform-provider-honeycombio v0.11.2
+)
 
 require (
 	github.com/aws/aws-lambda-go v1.13.3 // indirect

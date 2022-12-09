@@ -1,39 +1,42 @@
 {
     "typeName": "Honeycomb::SLO::SLO",
-    "description": "An example resource schema demonstrating some basic constructs and validation rules.",
-    "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-rpdk.git",
+    "description": "Honeycomb SLOs allows you to define and monitor Service Level Objectives (SLOs) for your organization.",
+    "sourceUrl": "https://github.com/honeycombio/cloudformation-integrations.git",
+    "typeConfiguration": {
+        "properties": {
+          "HoneycombConfig": {
+            "$ref": "#/definitions/HoneycombConfig"
+          }
+        },
+        "additionalProperties": false
+      },
     "definitions": {
-        "Tag": {
-            "description": "A key-value pair to associate with a resource.",
-            "type": "object",
+        "HoneycombConfig": {
             "properties": {
-                "Key": {
-                    "type": "string",
-                    "description": "The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length and cannot be prefixed with aws:. You can use any of the following characters: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.",
-                    "minLength": 1,
-                    "maxLength": 128
-                },
-                "Value": {
-                    "type": "string",
-                    "description": "The value for the tag. You can specify a value that is 0 to 256 Unicode characters in length and cannot be prefixed with aws:. You can use any of the following characters: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.",
-                    "minLength": 0,
-                    "maxLength": 256
-                }
+              "ApiKey": {
+                "description": "Honeycomb API key",
+                "type": "string"
+              },
+              "ApiUrl": {
+                "description": "Honeycomb API URL (defaults to https://api.honeycomb.io)",
+                "type": "string",
+                "default": "https://api.honeycomb.io"
+              }
             },
             "required": [
-                "Key",
-                "Value"
+              "ApiKey"
             ],
+            "type": "object",
             "additionalProperties": false
         }
     },
     "properties": {
         "ID": {
-            "description": "The ID of the SLO",
+            "description": "The ID of the SLO.",
             "type": "string"
         },
         "Name": {
-            "description": "The name of the SLO",
+            "description": "The name of the SLO.",
             "type": "string",
             "minLength": 1,
             "maxLength": 120
@@ -43,7 +46,7 @@
             "type": "string"
         },
         "Description": {
-            "description": "A description of the SLO",
+            "description": "A description of the SLO.",
             "type": "string",
             "minLength": 0,
             "maxLength": 1023
@@ -62,13 +65,6 @@
         "SLI": {
             "description": "The alias of the Derived Column that will be used as the SLI to indicate event success.",
             "type": "string"
-        },
-        "Tags": {
-            "description": "Tags associated with the SLO",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/Tag"
-            }
         }
     },
     "additionalProperties": false,
@@ -87,19 +83,19 @@
     ],
     "handlers": {
         "create": {
-            "permissions": [""]
+            "permissions": []
         },
         "read": {
-            "permissions": [""]
+            "permissions": []
         },
         "update": {
-            "permissions": [""]
+            "permissions": []
         },
         "delete": {
-            "permissions": [""]
+            "permissions": []
         },
         "list": {
-            "permissions": [""]
+            "permissions": []
         }
     }
 }
