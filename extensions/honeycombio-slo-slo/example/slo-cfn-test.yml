@@ -1,12 +1,39 @@
 AWSTemplateFormatVersion: 2010-09-09
 
+Parameters:
+  Name:
+    Type: String
+    Description: The name of the SLO.
+  TimePeriod:
+    Type: Number
+    Description: The time period, in days, over which your SLO will be evaluated.
+    Default: 30
+    MinValue: 1
+  TargetPercentage:
+    Type: Number
+    Description: The time period, in days, over which your SLO will be evaluated.
+    Default: 99.95
+    MinValue: 1.00000
+    MaxValue: 99.9999
+  Dataset:
+    Type: String
+    Description: The dataset this SLO is created in. Must be the same dataset as the SLI.
+    Default: rds-mysql-logs
+  Description:
+    Description: A description of the SLO.
+    Type: String
+  SLI:
+    Type: String
+    Description: The alias of the Derived Column that will be used as the SLI to indicate event success.
+    Default: sli.query_time
+
 Resources:
   MySweetSLO:
     Type: Honeycomb::SLO::SLO
     Properties:
-      Name: My Cloudy SLO
-      Description: How is the DB performing
-      Dataset: rds-mysql-logs
-      TimePeriod: 30
-      TargetPercentage: 99.95
-      SLI: sli.query_time
+      Name: !Ref Name
+      Description: !Ref Description
+      Dataset: !Ref Dataset
+      TimePeriod: !Ref TimePeriod
+      TargetPercentage: !Ref TargetPercentage
+      SLI: !Ref SLI
