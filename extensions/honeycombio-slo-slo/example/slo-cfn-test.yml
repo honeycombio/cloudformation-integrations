@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  MySweetSLO:
+    Type: Honeycomb::SLO::SLO
+    Properties:
+      Name: My Cloudy SLO
+      Description: How is the DB performing
+      Dataset: rds-mysql-logs
+      TimePeriod: 30
+      TargetPercentage: 99.95
+      SLI: sli.query_time

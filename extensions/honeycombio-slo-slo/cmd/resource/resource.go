@@ -15,13 +15,17 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 		return handler.ProgressEvent{}, err
 	}
 
-	mySLO, err := c.SLOs.Create(context.Background(), *currentModel.Dataset, &hnyclient.SLO{
+	data := &hnyclient.SLO{
 		Name:             *currentModel.Name,
-		Description:      *currentModel.Description,
 		TimePeriodDays:   *currentModel.TimePeriod,
 		TargetPerMillion: floatToTPM(*currentModel.TargetPercentage),
 		SLI:              hnyclient.SLIRef{Alias: *currentModel.SLI},
-	})
+	}
+	if currentModel.Description != nil {
+		data.Description = *currentModel.Description
+	}
+
+	mySLO, err := c.SLOs.Create(context.Background(), *currentModel.Dataset, data)
 	if err != nil {
 		return handler.ProgressEvent{}, fmt.Errorf("unable to create SLO: %v", err)
 	}
@@ -29,7 +33,7 @@ func Create(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	currentModel.ID = &mySLO.ID
 	return handler.ProgressEvent{
 		OperationStatus: handler.Success,
-		Message:         "Create complete",
+		Message:         "Create Complete",
 		ResourceModel:   currentModel,
 	}, nil
 }
@@ -68,10 +72,12 @@ func Update(req handler.Request, prevModel *Model, currentModel *Model) (handler
 	slo := &hnyclient.SLO{
 		ID:               *currentModel.ID,
 		Name:             *currentModel.Name,
-		Description:      *currentModel.Description,
 		TargetPerMillion: floatToTPM(*currentModel.TargetPercentage),
 		TimePeriodDays:   *currentModel.TimePeriod,
 		SLI:              hnyclient.SLIRef{Alias: *currentModel.SLI},
+	}
+	if currentModel.Description != nil {
+		slo.Description = *currentModel.Description
 	}
 
 	_, err = c.SLOs.Update(context.Background(), *currentModel.Dataset, slo)
@@ -114,20 +120,21 @@ func List(req handler.Request, prevModel *Model, currentModel *Model) (handler.P
 	}, nil
 }
 
-func newHnyClient(req *handler.Request) (*hnyclient.Client, error) {
-	type hnyClientConfig struct {
-		APIKey    string `json:"ApiKey"`
-		APIUrl    string `json:"ApiUrl,omitempty"`
-		UserAgent string `json:"-"`
-		Debug     bool   `json:"-"`
-	}
-	var config hnyClientConfig
+type ResourceTypeConfig struct {
+	HoneycombConfig struct {
+		APIKey string `json:"ApiKey"`
+		APIUrl string `json:"ApiUrl"`
+	} `json:"HoneycombConfig"`
+}
 
-	err := req.UnmarshalTypeConfig(&config)
+func newHnyClient(req *handler.Request) (*hnyclient.Client, error) {
+	var tc ResourceTypeConfig
+	err := req.UnmarshalTypeConfig(&tc)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse client configuration: %v", err)
+		return nil, fmt.Errorf("unable to parse resource type configuration: %v", err)
 	}
-	c, err := hnyclient.NewClient((*hnyclient.Config)(&config))
+
+	c, err := hnyclient.NewClient(&hnyclient.Config{APIKey: tc.HoneycombConfig.APIKey, APIUrl: tc.HoneycombConfig.APIUrl})
 	if err != nil {
 		return nil, fmt.Errorf("unable to initilize client: %v", err)
 	}
