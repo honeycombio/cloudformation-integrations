@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/handler"
-	hnyclient "github.com/honeycombio/terraform-provider-honeycombio/client"
+	hnyclient "github.com/honeycombio/terraform-provider-honeycomb/client"
 )
 
 // Create handles the Create event from the Cloudformation service.

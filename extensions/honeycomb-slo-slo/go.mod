@@ -1,4 +1,4 @@
-module github.com/honeycombio/cloudformation-integrations/extensions/honeycombio-slo-slo
+module github.com/honeycombio/cloudformation-integrations/extensions/honeycomb-slo-slo
 
 go 1.19
 

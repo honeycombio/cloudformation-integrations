@@ -15,7 +15,7 @@
         "endpoint_url": null,
         "region": null,
         "target_schemas": [],
-        "import_path": "github.com/honeycombio/cloudformation-integrations/extensions/honeycombio-slo-slo",
+        "import_path": "github.com/honeycombio/cloudformation-integrations/extensions/honeycomb-slo-slo",
         "protocolVersion": "2.0.0",
         "pluginVersion": "2.0.4"
     }

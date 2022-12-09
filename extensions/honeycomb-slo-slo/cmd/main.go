@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn"
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/handler"
-	"github.com/honeycombio/cloudformation-integrations/extensions/honeycombio-slo-slo/cmd/resource"
+	"github.com/honeycombio/cloudformation-integrations/extensions/honeycomb-slo-slo/cmd/resource"
 )
 
 // Handler is a container for the CRUDL actions exported by resources
