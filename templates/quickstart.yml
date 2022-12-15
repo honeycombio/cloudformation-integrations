@@ -58,8 +58,7 @@ Parameters:
   EnableCloudWatchMetrics:
     Type: String
     Default: "false"
-    Description: Honeycomb Enterprise customers can enable CloudWatch Metrics collection by setting this to true.
-    ConstraintDescription: Requires a Honeycomb Enterprise plan.
+    Description: Enable CloudWatch Metrics collection.
     AllowedValues:
       - "true"
       - "false"
