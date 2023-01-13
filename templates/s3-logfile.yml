@@ -31,13 +31,18 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Your Honeycomb Team's API key.
+    MinLength: 1
+    MaxLength: 32
   HoneycombDataset:
     Type: String
     Description: The target Honeycomb dataset for the Stream to publish to.
+    MinLength: 1
+    MaxLength: 255
   HoneycombAPIHost:
     Type: String
     Default: https://api.honeycomb.io
     Description: Optional. Override the default Honeycomb API host.
+    MinLength: 1
   Environment:
     Type: String
     Default: ""
@@ -80,6 +85,7 @@ Parameters:
   S3BucketArn:
     Type: String
     Description: The full ARN of the bucket storing the logs.
+    AllowedPattern: "^[a-zA-Z0-9]+[a-zA-Z0-9./:-]+$"
   S3FilterPrefix:
     Type: String
     Description: Prefix within the logs bucket to restrict processing.
