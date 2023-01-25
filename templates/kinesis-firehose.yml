@@ -29,20 +29,25 @@ Metadata:
 Parameters:
   Name:
     Type: String
-    Description: A name for this Kinesis Firehose Delivery Stream
+    Description: A name for this Kinesis Firehose Delivery Stream.
     MinLength: 1
     MaxLength: 64
   HoneycombAPIKey:
     Type: String
     NoEcho: true
     Description: Your Honeycomb Team's API key.
+    MinLength: 1
+    MaxLength: 32
   HoneycombDataset:
     Type: String
     Description: The target Honeycomb dataset for the Stream to publish to.
+    MinLength: 1
+    MaxLength: 255
   HoneycombAPIHost:
     Type: String
     Default: https://api.honeycomb.io
     Description: Optional. Override the default Honeycomb API host.
+    MinLength: 1
   HttpBufferingInterval:
     Type: Number
     Default: 60
@@ -66,6 +71,7 @@ Parameters:
     Type: String
     Description: The ARN of the S3 Bucket that will store any events that failed to be sent to Honeycomb.
     ConstraintDescription: The ARN of a S3 Bucket.
+    AllowedPattern: "^[a-zA-Z0-9]+[a-zA-Z0-9./:-]+$"
   S3BufferingInterval:
     Type: Number
     Default: 400

@@ -55,6 +55,8 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Your Honeycomb Team's API key.
+    MinLength: 1
+    MaxLength: 32
   EnableCloudWatchMetrics:
     Type: String
     Default: "false"
@@ -66,14 +68,19 @@ Parameters:
     Type: String
     Default: https://api.honeycomb.io
     Description: Override the default Honeycomb API host.
+    MinLength: 1
   CloudWatchLogsDataset:
     Type: String
     Default: cloudwatch-logs
     Description: The name of the Honeycomb Dataset to publish CloudWatch Logs to.
+    MinLength: 1
+    MaxLength: 255
   CloudWatchMetricsDataset:
     Type: String
     Default: cloudwatch-metrics
     Description: The name of the Honeycomb Dataset to publish CloudWatch Metrics to.
+    MinLength: 1
+    MaxLength: 255
   LogGroupName:
     Type: String
     Description: The name of the CloudWatch Log Group to publish to Honeycomb via Kinesis Firehose.
