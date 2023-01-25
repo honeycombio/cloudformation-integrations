@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-templates:
-    name: Valid CloudFormation Templates
+    name: Validate CloudFormation Templates
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
     permissions:
@@ -21,8 +21,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
           aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 900 # 15min - lowest possible value
 
       - name: Validate Templates
         id: validate
