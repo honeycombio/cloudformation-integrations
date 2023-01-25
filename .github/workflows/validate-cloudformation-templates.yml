@@ -23,7 +23,7 @@ jobs:
         with:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
-          role-duration-seconds: 600 # 10 min
+          role-duration-seconds: 900 # 15min - lowest possible value
 
       - name: Validate Templates
         id: validate
