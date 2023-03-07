@@ -176,7 +176,7 @@ Resources:
         TransformLambdaArn: !If
           - EnableLambdaTransform
           - !GetAtt TransformLambda.Arn
-          - AWS::NoValue
+          - !Ref "AWS::NoValue"
   TransformLambdaRole:
     Type: AWS::IAM::Role
     Condition: EnableLambdaTransform
