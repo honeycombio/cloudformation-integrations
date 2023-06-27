@@ -33,13 +33,13 @@ If the stack creation fails during its initial set up, we recommend a complete d
 
 This 'Quick Start' template allows the configuration of multiple integrations from a single CloudFormation Template.
 
-<a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/quickstart.yml&stackName=Honeycomb-Integration" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
+<a href="https://console.aws.amazon.com/cloudformation/home#/stacks/new?templateURL=https://honeycomb-builds.s3.amazonaws.com/cloudformation-templates/latest/quickstart.yml&stackName=honeycomb-integration" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" alt="Launch Stack" /></a>
 
 ### Required Inputs
 
 Enter a value for the required input in the UI, or if using the CLI or API, ensure the inclusion of the required input and its value.
 
-* `HoneycombAPIKey`: : Your Honeycomb Team's API Key.
+* `HoneycombAPIKey`: Your Honeycomb Team's API Key.
 
 *Note*: All other Parameters are optional, but if no additional parameters are provided, only a S3 Bucket will be created.
 
