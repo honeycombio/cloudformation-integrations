@@ -59,6 +59,13 @@ Parameters:
     Type: String
     Default: ""
     Description: "KMS Key ID used to encrypt your Honeycomb write key (ex: a80d80aa-19b5-486a-a163-a4502b5555)"
+  LambdaFunctionArchitecture:
+    Type: String
+    Default: amd64
+    Description: The instruction set architecture that the function supports. Valid values are arm64 or amd64.
+    AllowedValues:
+      - amd64
+      - arm64
   LambdaFunctionMemory:
     Type: Number
     Default: 192
@@ -101,6 +108,7 @@ Parameters:
 
 Conditions:
   EncryptionEnabled: !Not [!Equals [!Ref KMSKeyId, ""]]
+  IsAMD64Arch: !Equals ["amd64", !Ref LambdaFunctionArchitecture]
 
 Resources:
   S3LambdaHandler:
@@ -109,14 +117,16 @@ Resources:
       FunctionName: !Sub "s3processor-${AWS::StackName}"
       Description: Parses logs from S3 and sends them to Honeycomb as structured logs.
       Handler: s3-handler
+      Architectures:
+        - !If [IsAMD64Arch, "x86_64", "arm64"]
       MemorySize: !Ref LambdaFunctionMemory
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: "go1.x"
+      Runtime: "provided.al2"
       Timeout: !Ref LambdaFunctionTimeout
       PackageType: Zip
       Code:
         S3Bucket: !Sub "honeycomb-integrations-${AWS::Region}"
-        S3Key: agentless-integrations-for-aws/LATEST/ingest-handlers.zip
+        S3Key: !Sub "agentless-integrations-for-aws/LATEST/s3-handler-${LambdaFunctionArchitecture}.zip"
       Environment:
         Variables:
           PARSER_TYPE: !Ref ParserType
