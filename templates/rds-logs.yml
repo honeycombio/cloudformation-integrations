@@ -233,7 +233,7 @@ Resources:
       PackageType: Zip
       Code:
         S3Bucket: !Sub "honeycomb-integrations-${AWS::Region}"
-        S3Key: !Sub "agentless-integrations-for-aws/LATEST/s3-handler-${LambdaFunctionArchitecture}.zip"
+        S3Key: !Sub "agentless-integrations-for-aws/LATEST/rds-${DBEngineType}-kfh-transform-${LambdaFunctionArchitecture}.zip"
 
 Outputs:
   KinesisDeliveryStreamArn:
