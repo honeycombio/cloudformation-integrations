@@ -220,6 +220,11 @@ Rules:
 Resources:
   StreamFailureBucket:
     Type: AWS::S3::Bucket
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - W3045
     Properties:
       AccessControl: Private
       BucketName: !Sub "honeycomb-stream-failures-${AWS::StackName}"
