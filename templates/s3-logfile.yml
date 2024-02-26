@@ -30,7 +30,7 @@ Parameters:
   HoneycombAPIKey:
     Type: String
     NoEcho: true
-    Description: Your Honeycomb Team's API Key.
+    Description: Your Honeycomb API Key.
     MinLength: 1
     MaxLength: 64
   HoneycombDataset:
