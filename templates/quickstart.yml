@@ -54,9 +54,9 @@ Parameters:
   HoneycombAPIKey:
     Type: String
     NoEcho: true
-    Description: Your Honeycomb Team's API key.
+    Description: Your Honeycomb Team's API Key.
     MinLength: 1
-    MaxLength: 32
+    MaxLength: 64
   EnableCloudWatchMetrics:
     Type: String
     Default: "false"
