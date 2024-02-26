@@ -46,9 +46,9 @@ Parameters:
   HoneycombAPIKey:
     Type: String
     NoEcho: true
-    Description: Your Honeycomb Team's API key.
+    Description: Your Honeycomb API Key.
     MinLength: 1
-    MaxLength: 32
+    MaxLength: 64
   HoneycombDataset:
     Type: String
     Description: The target Honeycomb dataset for the Stream to publish to.
