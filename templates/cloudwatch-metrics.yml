@@ -207,7 +207,7 @@ Resources:
     Type: AWS::CloudWatch::MetricStream
     Properties:
       Name: !Sub "honeycomb-metric-stream-${AWS::StackName}"
-      OutputFormat: opentelemetry0.7
+      OutputFormat: opentelemetry1.0
       RoleArn: !GetAtt HoneycombMetricStreamRole.Arn
       FirehoseArn: !If
         - CreateKinesisFirehose
