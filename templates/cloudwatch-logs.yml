@@ -183,7 +183,7 @@ Resources:
             Condition:
               StringLike:
                 aws:SourceArn:
-                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+                  - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*"
       Policies:
         - PolicyName: !Sub "hnystream-${AWS::StackName}"
           PolicyDocument:
