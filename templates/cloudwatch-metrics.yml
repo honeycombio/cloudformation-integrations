@@ -120,6 +120,8 @@ Parameters:
 
 Conditions:
   CreateKinesisFirehose: !Equals [!Ref KinesisFirehoseArn, ""]
+  IsIncludeFilter: !Equals [!Ref MetricFilterMethod, "Include"]
+  IsExcludeFilter: !Not [!Equals [!Ref MetricFilterMethod, "Include"]]
   EnableIncludeNamespace:
     !And [
       !Not [!Equals [!Ref FilterNamespace, ""]],
@@ -213,40 +215,44 @@ Resources:
         - CreateKinesisFirehose
         - !GetAtt KinesisToHoneycombStack.Outputs.KinesisDeliveryStreamArn
         - Ref: KinesisFirehoseArn
-      IncludeFilters:
-        - !If
-          - EnableIncludeNamespace
-          - Namespace: !Ref FilterNamespace
-          - !Ref "AWS::NoValue"
-        - !If
-          - EnableIncludeNamespace1
-          - Namespace: !Ref FilterNamespace1
-          - !Ref "AWS::NoValue"
-        - !If
-          - EnableIncludeNamespace2
-          - Namespace: !Ref FilterNamespace2
-          - !Ref "AWS::NoValue"
-        - !If
-          - EnableIncludeNamespace3
-          - Namespace: !Ref FilterNamespace3
-          - !Ref "AWS::NoValue"
-      ExcludeFilters:
-        - !If
-          - EnableExcludeNamespace
-          - Namespace: !Ref FilterNamespace
-          - !Ref "AWS::NoValue"
-        - !If
-          - EnableExcludeNamespace1
-          - Namespace: !Ref FilterNamespace1
-          - !Ref "AWS::NoValue"
-        - !If
-          - EnableExcludeNamespace2
-          - Namespace: !Ref FilterNamespace2
-          - !Ref "AWS::NoValue"
-        - !If
-          - EnableExcludeNamespace3
-          - Namespace: !Ref FilterNamespace3
-          - !Ref "AWS::NoValue"
+      IncludeFilters: !If
+        - IsIncludeFilter
+        - - !If
+            - EnableIncludeNamespace
+            - Namespace: !Ref FilterNamespace
+            - !Ref "AWS::NoValue"
+          - !If
+            - EnableIncludeNamespace1
+            - Namespace: !Ref FilterNamespace1
+            - !Ref "AWS::NoValue"
+          - !If
+            - EnableIncludeNamespace2
+            - Namespace: !Ref FilterNamespace2
+            - !Ref "AWS::NoValue"
+          - !If
+            - EnableIncludeNamespace3
+            - Namespace: !Ref FilterNamespace3
+            - !Ref "AWS::NoValue"
+        - !Ref "AWS::NoValue"
+      ExcludeFilters: !If
+        - IsExcludeFilter
+        - - !If
+            - EnableExcludeNamespace
+            - Namespace: !Ref FilterNamespace
+            - !Ref "AWS::NoValue"
+          - !If
+            - EnableExcludeNamespace1
+            - Namespace: !Ref FilterNamespace1
+            - !Ref "AWS::NoValue"
+          - !If
+            - EnableExcludeNamespace2
+            - Namespace: !Ref FilterNamespace2
+            - !Ref "AWS::NoValue"
+          - !If
+            - EnableExcludeNamespace3
+            - Namespace: !Ref FilterNamespace3
+            - !Ref "AWS::NoValue"
+        - !Ref "AWS::NoValue"
 
 Outputs:
   KinesisDeliveryStreamArn:
