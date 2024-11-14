@@ -145,22 +145,22 @@ Conditions:
   EnableExcludeNamespace:
     !And [
       !Not [!Equals [!Ref FilterNamespace, ""]],
-      !Not [!Equals [!Ref MetricFilterMethod, "Include"]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
     ]
   EnableExcludeNamespace1:
     !And [
       !Not [!Equals [!Ref FilterNamespace1, ""]],
-      !Not [!Equals [!Ref MetricFilterMethod, "Include"]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
     ]
   EnableExcludeNamespace2:
     !And [
       !Not [!Equals [!Ref FilterNamespace2, ""]],
-      !Not [!Equals [!Ref MetricFilterMethod, "Include"]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
     ]
   EnableExcludeNamespace3:
     !And [
       !Not [!Equals [!Ref FilterNamespace3, ""]],
-      !Not [!Equals [!Ref MetricFilterMethod, "Include"]],
+      !Equals [!Ref MetricFilterMethod, "Exclude"],
     ]
 
 Resources:
