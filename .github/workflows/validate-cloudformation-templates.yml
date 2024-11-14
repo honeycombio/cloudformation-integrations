@@ -36,5 +36,7 @@ jobs:
 
       - name: Setup Cloud Formation Linter with Latest Version
         uses: scottbrenner/cfn-lint-action@v2
-        with:
-          args: "templates/*.yml"
+
+      - name: Lint Templates
+        id: lint
+        run: make lint-templates
