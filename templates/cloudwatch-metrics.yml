@@ -207,6 +207,11 @@ Resources:
                   - Ref: KinesisFirehoseArn
   HoneycombCWLStream:
     Type: AWS::CloudWatch::MetricStream
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3018 # we're using !If to conditionally set the IncludeFilters and ExcludeFilters
     Properties:
       Name: !Sub "honeycomb-metric-stream-${AWS::StackName}"
       OutputFormat: opentelemetry1.0
