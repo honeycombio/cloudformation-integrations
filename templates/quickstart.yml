@@ -6,20 +6,20 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          Default: Required Parameters
+          default: Required Parameters
         Parameters:
           - HoneycombAPIKey
       - Label:
-          Default: Optional Parameters
+          default: Optional Parameters
         Parameters:
           - HoneycombAPIHost
       - Label:
-          Default: "Optional: CloudWatch Metrics"
+          default: "Optional: CloudWatch Metrics"
         Parameters:
           - EnableCloudWatchMetrics
           - CloudWatchMetricsDataset
       - Label:
-          Default: "Optional: S3 Log Parsing"
+          default: "Optional: S3 Log Parsing"
         Parameters:
           - S3LogsDataset
           - S3LogsParserType
@@ -29,7 +29,7 @@ Metadata:
           - S3LogsFilterPrefix
           - S3LogsFilterSuffix
       - Label:
-          Default: "Optional: RDS Logs"
+          default: "Optional: RDS Logs"
         Parameters:
           - RDSLogsDataset
           - RDSDBEngineType
@@ -40,7 +40,7 @@ Metadata:
           - RDSLogGroupName4
           - RDSLogGroupName5
       - Label:
-          Default: "Optional: CloudWatch Logs"
+          default: "Optional: CloudWatch Logs"
         Parameters:
           - CloudWatchLogsDataset
           - LogGroupName
