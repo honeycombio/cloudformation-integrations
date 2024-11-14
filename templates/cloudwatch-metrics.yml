@@ -6,12 +6,12 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          Default: Required Parameters
+          default: Required Parameters
         Parameters:
           - HoneycombAPIKey
           - S3FailureBucketArn
       - Label:
-          Default: "Optional: Metric Filtering"
+          default: "Optional: Metric Filtering"
         Parameters:
           - MetricFilterMethod
           - FilterNamespace
@@ -19,7 +19,7 @@ Metadata:
           - FilterNamespace2
           - FilterNamespace3
       - Label:
-          Default: Optional Parameters
+          default: Optional Parameters
         Parameters:
           - HoneycombAPIHost
           - HoneycombDataset
