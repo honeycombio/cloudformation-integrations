@@ -56,7 +56,7 @@ Parameters:
     NoEcho: true
     Description: Your Honeycomb API Key.
     MinLength: 1
-    MaxLength: 64
+    MaxLength: 4096
   EnableCloudWatchMetrics:
     Type: String
     Default: "false"
